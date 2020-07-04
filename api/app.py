@@ -46,6 +46,7 @@ init_routes(API)
 
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
+    gunicorn_logger.addHandler(logging.StreamHandler())
     APP.logger.handlers = gunicorn_logger.handlers
     APP.logger.setLevel(LOG_LEVEL)
 
@@ -54,7 +55,7 @@ if __name__ != '__main__':
 def after_request(response):
     origin = request.environ.get('HTTP_ORIGIN')
     if origin and origin in ORIGINS:
-        # APP.logger.info(' - ADDING ORIGIN HEADER | %s', origin)
+        APP.logger.info(' - ADDING ORIGIN HEADER | %s', origin)
         response.headers.add('Access-Control-Allow-Origin', origin)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
