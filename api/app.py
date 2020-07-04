@@ -30,7 +30,9 @@ ORIGINS = [
     "http://localhost:3000",
     "http://localhost",
     "https://beantownpub.com",
-    "https://dev.beantownpub.com"
+    "https://dev.beantownpub.com",
+    "https://www.beantownpub.com",
+    "https://beantown.dev.jalgraves.com"
 ]
 
 cors = CORS(
