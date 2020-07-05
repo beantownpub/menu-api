@@ -30,3 +30,15 @@ class CateringCategory(db.Document):
     items = db.ListField(db.ReferenceField(CateringItem))
 
 
+class Drinks(db.Document):
+    name = db.StringField(max_length=120)
+    category = db.StringField()
+    description = db.StringField()
+    is_active = db.BooleanField(default=True)
+    location = db.StringField()
+    meta = {'allow_inheritance': True}
+
+    @property
+    def slug(self):
+        slug = self.name.lower().replace(' ', '-')
+        return slug

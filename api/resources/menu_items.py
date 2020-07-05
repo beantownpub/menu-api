@@ -2,7 +2,7 @@ import logging
 from flask import Response, request
 from flask_restful import Resource
 
-from api.database.models import MenuItem
+from api.database.models import MenuItem, Drinks
 
 app_log = logging.getLogger()
 
@@ -33,7 +33,9 @@ class MenuItemsAPI(Resource):
 
     def delete(self):
         name = request.get_json()['name']
-        MenuItem.objects.get(name=name).delete()
+        items = MenuItem.objects.get(name=name)
+        items.delete({})
+
         return '', 204
 
 
@@ -52,9 +54,30 @@ class MenuItemAPI(Resource):
         return '', 200
 
 
+class DrinkAPI(Resource):
+    def get(self, item):
+        drink = Drink.objects.get(name=item).to_json()
+        return Response(menu_item, mimetype="application/json", status=200)
+
+    def put(self, item):
+        body = request.get_json()
+        Drinks.objects.get(name=item).update(**body)
+        return '', 200
+
+    def delete(self, item):
+        Drinks.objects.get(name=item).delete()
+        return '', 200
+
+
 class SectionsAPI(Resource):
     def get(self, category):
         menu_items = MenuItem.objects(category=category, is_active=True).to_json()
         app_log.info('- CategoryAPI | GET | Category: %s', category)
-        app_log.info('- CategoryAPI | GET | Items: %s', menu_items)
+        return Response(menu_items, mimetype='application/json', status=200)
+
+
+class DrinksAPI(Resource):
+    def get(self, category):
+        menu_items = Drinks.objects(category=category, is_active=True).to_json()
+        app_log.info('- CategoryAPI | GET | Category: %s', category)
         return Response(menu_items, mimetype='application/json', status=200)

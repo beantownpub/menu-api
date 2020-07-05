@@ -4,23 +4,23 @@
             {
                 "name": "Chicken Tenders",
                 "description": "Tender, boneless chicken strips cooked to perfection. Choice of honey mustard, ranch, bbq, or sweet chili on the side. Also available buffalo style",
-                "price": 11.95,
+                "price": 11.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
             },
             {
                 "name": "Mozzarella Sticks",
-                "description": "Served with homemade marinara sauce",
-                "price": 11.95,
+                "description": "Mozzarella dipped in bread crumbs and fried. Served with homemade marinara sauce",
+                "price": 11.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
             },
             {
-                "name": "Idaho Potato Skins",
+                "name": "Potato Skins",
                 "description": "Topped with cheddar jack cheese, scallions, and smoked bacon. Add chili for 2.00",
-                "price": 10.95,
+                "price": 10.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -28,15 +28,15 @@
             {
                 "name": "Homemade Hummus",
                 "description": "A great vegetarian delight. Served with fresh pita bread, carrots, and celery sticks",
-                "price": 11.95,
+                "price": 11.99,
                 "category": "appetizers",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Fried Pickles",
-                "description": "Served with ranch dressing",
-                "price": 10.95,
+                "description": "Pickle chips lightly battered and fried to a golden brown. Served with ranch dressing",
+                "price": 9.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -44,7 +44,7 @@
             {
                 "name": "Chips & Guacamole",
                 "description": "House made guacamole served with our fresh fried tortilla chips",
-                "price": 9.95,
+                "price": 9.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -52,7 +52,7 @@
             {
                 "name": "Cheese Fries",
                 "description": "House fries topped with cheddar jack cheese and served with gravy dipping for dipping delight Add bacon 2.00",
-                "price": 9.95,
+                "price": 9.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -60,7 +60,7 @@
             {
                 "name": "Beantown Nachos",
                 "description": "A mountain of crisp tortilla chips piled high with salsa, melted cheese, sour cream, onions, jalapenos, and scallions. Add a generous scoop of chili or chicken for 4.00",
-                "price": 13.95,
+                "price": 13.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -68,14 +68,14 @@
             {
                 "name": "Beantown Baked Beans",
                 "description": "An old Boston recipe served with brown bread",
-                "price": 8.95,
+                "price": 8.99,
                 "category": "appetizers",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Famous Fries",
-                "description": "Our famous steak fries cooked to a perfect golden brown",
+                "description": "Our famous steak fries cooked to a perfect golden brown. Served with your choice of dipping sauce",
                 "price": 6.00,
                 "category": "appetizers",
                 "is_active": true,
@@ -84,7 +84,31 @@
             {
                 "name": "Baked Jumbo Pretzel",
                 "description": "Just like the ones in the park. Served with honey mustard",
-                "price": 9.95,
+                "price": 9.99,
+                "category": "appetizers",
+                "is_active": false,
+                "location": "beantown"
+            },
+            {
+                "name": "Haddock Bites",
+                "description": "Fresh haddock battered and fried. Served with tartar sauce",
+                "price": 12.99,
+                "category": "appetizers",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Tater Kegs",
+                "description": "Jumbo tater tots stuffed with bacon and cheddar cheese, served with side of ranch dressing",
+                "price": 9.99,
+                "category": "appetizers",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Fried Shrimp",
+                "description": "Shrimp delicately battered and breaded. Served with honey mustard",
+                "price": 12.99,
                 "category": "appetizers",
                 "is_active": true,
                 "location": "beantown"
@@ -94,7 +118,7 @@
             {
                 "name": "Yankee Pot Roast",
                 "description": "Slow roasted beef and traditional vegetables served over potatoes and a jus",
-                "price": 19.95,
+                "price": 19.99,
                 "category": "specials",
                 "is_active": false,
                 "location": "beantown"
@@ -102,7 +126,7 @@
             {
                 "name": "North End Italian Sausage",
                 "description": "Handmade Italian sausage made daily in the North End. Onions and peppers on a lightly buttered roll served with your choice of side",
-                "price": 12.95,
+                "price": 12.99,
                 "category": "specials",
                 "is_active": false,
                 "location": "beantown"
@@ -112,7 +136,7 @@
             {
                 "name": "6 Wings",
                 "description": "",
-                "price": 10.95,
+                "price": 10.99,
                 "category": "wings",
                 "is_active": true,
                 "location": "beantown"
@@ -120,7 +144,23 @@
             {
                 "name": "12 Wings",
                 "description": "",
-                "price": 17.95,
+                "price": 17.99,
+                "category": "wings",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Boneless",
+                "description": "",
+                "price": 11.99,
+                "category": "wings",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Popcorn Chicken",
+                "description": "",
+                "price": 10.99,
                 "category": "wings",
                 "is_active": true,
                 "location": "beantown"
@@ -130,7 +170,7 @@
             {
                 "name": "Homemade Chili",
                 "description": "Fresh ground sirloin, tomatoes, peppers, onions & beans. All this flavor topped with melted cheese Tortilla chips included for scooping",
-                "price": 8.95,
+                "price": 8.99,
                 "category": "soups",
                 "is_active": true,
                 "location": "beantown"
@@ -138,7 +178,7 @@
             {
                 "name": "Beantown Clam Chowder",
                 "description": "Hearty bowl of our world famous clam chowder",
-                "price": 9.95,
+                "price": 8.99,
                 "category": "soups",
                 "is_active": true,
                 "location": "beantown"
@@ -148,15 +188,15 @@
             {
                 "name": "Steak Tip Salad",
                 "description": "Our fresh garden salad topped with our famous marinated steak tips",
-                "price": 17.95,
+                "price": 17.99,
                 "category": "salads",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Garden Salad",
                 "description": "Mixed greens, fresh tomatoes, Bermuda onions, crisp cucumbers, carrots, and pepperoncinis",
-                "price": 10.95,
+                "price": 10.99,
                 "category": "salads",
                 "is_active": true,
                 "location": "beantown"
@@ -164,15 +204,15 @@
             {
                 "name": "Mediterranean Salad",
                 "description": "Mixed greens, tomato, onion, cucumber, carrots, pepperoncinis, olives, and feta",
-                "price": 11.95,
+                "price": 11.99,
                 "category": "salads",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Caesar Salad",
                 "description": "Crisp romaine lettuce and garlic bread croutons topped with parmesan cheese and tossed in a classic caesar dressing",
-                "price": 10.95,
+                "price": 10.99,
                 "category": "salads",
                 "is_active": true,
                 "location": "beantown"
@@ -182,7 +222,7 @@
             {
                 "name": "Vegetable Stir Fry",
                 "description": "A medley of fresh stir fry vegetbles in a light teriyaki sauce served over rice. Add chicken for 4.00",
-                "price": 12.95,
+                "price": 12.99,
                 "category": "entrees",
                 "is_active": true,
                 "location": "beantown"
@@ -190,31 +230,31 @@
             {
                 "name": "New England Fried Chicken",
                 "description": "Bonless chicken breast lightly battered and cooked to a golden brown. Served with mashed potatoes, vegetables, cranberry sauce, and scrumptous homemade gravy",
-                "price": 15.95,
+                "price": 15.99,
                 "category": "entrees",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Made to Order Mac & Cheese",
                 "description": "Add bacon 2.00. Add grilled chicken 4.00. Add lobster market price",
-                "price": 9.95,
+                "price": 9.99,
                 "category": "entrees",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "*Marinated Steak Tips",
                 "description": "Choice cuts of lean sirloin grilled to your liking. Served with today's vegetable and a side of your choice",
-                "price": 19.95,
+                "price": 19.99,
                 "category": "entrees",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Fish & Chips",
                 "description": "Fresh haddock, fried to a golden brown and served with homemade coleslaw and fries",
-                "price": 17.95,
+                "price": 17.99,
                 "category": "entrees",
                 "is_active": true,
                 "location": "beantown"
@@ -222,7 +262,7 @@
             {
                 "name": "Firecracker Shrimp",
                 "description": "Golden brown fried shrimp dusted in our spice mix and french fries drizzled in firecracker sauce. Served with coleslaw",
-                "price": 14.95,
+                "price": 14.99,
                 "category": "entrees",
                 "is_active": true,
                 "location": "beantown"
@@ -230,7 +270,7 @@
             {
                 "name": "Chicken Tender Platter",
                 "description": "Fresh chicken tenders fried golden brown and served with fries and coleslaw",
-                "price": 13.95,
+                "price": 13.99,
                 "category": "entrees",
                 "is_active": true,
                 "location": "beantown"
@@ -238,7 +278,15 @@
             {
                 "name": "Chicken Parmesan",
                 "description": "A large breast of chicken delicately breaded, lightly fried, topped with marinara sauce and mozzarella and server over the pasta of the day",
-                "price": 15.95,
+                "price": 15.99,
+                "category": "entrees",
+                "is_active": false,
+                "location": "beantown"
+            },
+            {
+                "name": "Broiled Haddock Plate",
+                "description": "Fresh grilled with sauteed veggie of the day. Served with cole slaw and a side of sweet chili sauce",
+                "price": 13.99,
                 "category": "entrees",
                 "is_active": true,
                 "location": "beantown"
@@ -248,15 +296,23 @@
             {
                 "name": "Jumbo Lobster Role",
                 "description": "Choice of tender, sweet lobster meat tossed lightly in mayo served with lettuce on a toasted buttered roll. Comes with french fries and homemade coleslaw",
-                "price": 20.95,
+                "price": 19.99,
+                "category": "sandwiches",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Lobster Grilled Cheese",
+                "description": "Fresh North Atlantic lobster on your choice of whie, wheat, or rye bread with American, cheddar, swiss, pepperjack, or provolone cheese",
+                "price": 19.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
             },
             {
                 "name": "Traditional B.L.T",
-                "description": "Bacon, lettuce, tomato, and mayo",
-                "price": 10.95,
+                "description": "An American classic! Bacon, lettuce, tomato, and mayo on your coice of white, wheat, or rye bread",
+                "price": 10.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -264,7 +320,7 @@
             {
                 "name": "The Big Cheese",
                 "description": "Traditional grilled cheese sandwich. Choice of white, wheat, or rye bread and American, cheddar, Swiss, pepperjack, or provolone cheese. Additions available for 99¢: Tomato, bacon, ham, sauteed onions",
-                "price": 9.95,
+                "price": 9.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -272,15 +328,15 @@
             {
                 "name": "Slow Roasted Turkey Club",
                 "description": "Fresh carved turkey breast with lettuce, tomato, and bacon",
-                "price": 14.95,
+                "price": 14.99,
                 "category": "sandwiches",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Sam Adams",
                 "description": "Grilled cajun chicken breast topped with melted Vermont cheddar cheese and dressed with lettuce, tomato, and a dijon mayo blend",
-                "price": 10.95,
+                "price": 10.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -288,7 +344,7 @@
             {
                 "name": "Fish Tacos",
                 "description": "3 Tacos. Fresh fried haddock served on caramelized onion naan with fresh pico de gailo and cabbage, drizzled with our house aioli. Side not included",
-                "price": 12.95,
+                "price": 12.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -296,7 +352,7 @@
             {
                 "name": "Paul Revere",
                 "description": "Hand cut Romanian pastrami, corned beef, Swiss cheese, Bermuda onions and honey dijon mustard",
-                "price": 14.95,
+                "price": 14.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -304,15 +360,15 @@
             {
                 "name": "*Mother Goose",
                 "description": "Sauteed, marinated, sirloin steak tips smothered with sauteed peppers, onions, and melted Vermont cheddar",
-                "price": 15.95,
+                "price": 15.99,
                 "category": "sandwiches",
-                "is_active": true,
+                "is_active": false,
                 "location": "beantown"
             },
             {
                 "name": "Honey Chicken Sandwich",
                 "description": "Fried chicken breast topped with pepperjack cheese, honey, spicy mustard, and pickle chips. On a brioche bun",
-                "price": 14.95,
+                "price": 14.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -320,15 +376,15 @@
             {
                 "name": "Fried Chicken Sandwich",
                 "description": "Fresh chicken breast fried golden brown, served with lettuce, tomato, and onion on a brioche bun",
-                "price": 14.95,
+                "price": 14.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
             },
             {
                 "name": "Fenway Franks",
-                "description": "Two all beef hot dogs and grilled buns",
-                "price": 9.95,
+                "description": "Two all beef hot dogs and grilled buns, just like at the park!",
+                "price": 9.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -336,7 +392,15 @@
             {
                 "name": "Classic Reuben",
                 "description": "Choice of corned beef or pastrami piled high with Swiss cheese and 1,000 island dressing",
-                "price": 15.95,
+                "price": 15.99,
+                "category": "sandwiches",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Rocado Sandwich",
+                "description": "Toasted multigrain panini with avado, roasted red peppers, pico de gailo, and fresh pesto. Vegan friendly!",
+                "price": 13.99,
                 "category": "sandwiches",
                 "is_active": true,
                 "location": "beantown"
@@ -346,24 +410,90 @@
             {
                 "name": "Famous Beantown Burger",
                 "description": "½lb fresh filet mignon, short rib & chuck, topped with bacon, choice of cheese, lettuce, tomato, onion, homemade fried pickle chips, and our signature sauce. All this on a garlic butter roll",
-                "price": 15.95,
+                "price": 15.99,
                 "category": "burgers",
                 "is_active": true,
                 "location": "beantown"
             },
             {
-                "name": "½Lb Handmade Turkey Burger",
+                "name": "Handmade Turkey Burger",
                 "description": "Fresh ground turkey breast, grilled and served with lettuce, tomato, and onion on a freshly baked roll. Topped with your choice of cheese",
-                "price": 12.95,
+                "price": 12.99,
                 "category": "burgers",
                 "is_active": true,
                 "location": "beantown"
             },
             {
-                "name": "½Lb Handmade Cheese Burger",
-                "description": "USDA choice beef served with lettuce, tomato, and onion topped with choice of cheese on a freshly baked roll. Add sauteed onions or mushrooms for just 50¢ each or bacon for 1.00",
-                "price": 14.95,
+                "name": "Handmade Cheese Burger",
+                "description": "½Lb USDA choice beef served with lettuce, tomato, and onion topped with choice of cheese on a freshly baked roll. Add sauteed onions or mushrooms for just 50¢ each or bacon for 1.00",
+                "price": 14.99,
                 "category": "burgers",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Guacamole Burger",
+                "description": "½Lb hand packed beef patty topped with guacamole, pepperjack cheese, jalapenos, and chipotle aioli",
+                "price": 15.99,
+                "category": "burgers",
+                "is_active": true,
+                "location": "beantown"
+            }
+        ],
+        "drafts": [
+            {
+                "name": "Sam Adams Lager",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Sam Adams Summer",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Harpooon IPA",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Monkey Fist IPA",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Blue Moon",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Downeast Cider",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
+                "is_active": true,
+                "location": "beantown"
+            },
+            {
+                "name": "Guinness",
+                "description": "",
+                "price": 0.0,
+                "category": "drafts",
                 "is_active": true,
                 "location": "beantown"
             }
@@ -371,7 +501,7 @@
     },
     "catering": {
         "appetizers": {
-            "price": 14.95,
+            "price": 14.99,
             "items": [
                 {
                     "name": "Boneless Buffalo Tenders",
@@ -424,7 +554,7 @@
             ]
         },
         "buffet": {
-            "price": 24.95,
+            "price": 24.99,
             "items": [
                 {
                     "name": "Chicken, Broccoli, and Ziti",

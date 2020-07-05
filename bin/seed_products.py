@@ -1,4 +1,5 @@
 import json
+import sys
 
 import requests
 
@@ -15,6 +16,11 @@ def post_item(menu_item):
     print(r.status_code)
 
 
+def delete_item(menu_item):
+    url = 'http://localhost:5004/v1/menu/items'
+    r = requests.delete(url, json=menu_item)
+    print(r.status_code)
+
 if __name__ == '__main__':
     print(__file__)
     menu = get_data('bin/beantown_menu.json')
@@ -22,5 +28,7 @@ if __name__ == '__main__':
     for section in sections:
         items = menu['categories'][section]
         for i in items:
-            # print(i)
-            post_item(i)
+            if sys.argv[1] == 'add':
+                post_item(i)
+            else:
+                delete_item(i)
