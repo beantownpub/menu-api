@@ -2,9 +2,7 @@ import json
 import os
 import logging
 
-import psycopg2
-
-from flask import Response, request, session
+from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
 
