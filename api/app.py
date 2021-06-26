@@ -14,16 +14,19 @@ ORIGIN_URL = os.environ.get('ORIGIN_URL')
 APP = Flask(__name__.split('.')[0], instance_path='/opt/app/api')
 API = Api(APP)
 
-APP.config['CORS_ALLOW_HEADERS'] = True
-APP.config['CORS_EXPOSE_HEADERS'] = True
-APP.config['MONGODB_SETTINGS'] = {
-    'host': os.environ.get('MONGO_HOST'),
-    'db': os.environ.get('MONGO_DB'),
-    'username': os.environ.get('MONGO_USER'),
-    'password':os.environ.get('MONGO_PW'),
-    'connect': False
+PSQL = {
+    'user': os.environ.get('DB_USER', 'jalbot'),
+    'pwd': os.environ.get('DB_PWD'),
+    'host': os.environ.get('DB_HOST', 'localhost'),
+    'db': os.environ.get('DB_NAME')
 }
 
+database = f"postgresql://{PSQL['user']}:{PSQL['pwd']}@{PSQL['host']}:5432/{PSQL['db']}"
+
+APP.config['CORS_ALLOW_HEADERS'] = True
+APP.config['CORS_EXPOSE_HEADERS'] = True
+APP.config['SQLALCHEMY_DATABASE_URI'] = database
+APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 ORIGINS = [
     "https://beantown.jalgraves.com",
@@ -53,11 +56,11 @@ if __name__ != '__main__':
 
 @APP.after_request
 def after_request(response):
-    origin = request.environ.get('HTTP_ORIGIN')
-    if origin and origin in ORIGINS:
+    # origin = request.environ.get('HTTP_ORIGIN')
+    # if origin and origin in ORIGINS:
         # APP.logger.info(' - ADDING ORIGIN HEADER | %s', origin)
-        response.headers.add('Access-Control-Allow-Origin', origin)
+        # response.headers.add('Access-Control-Allow-Origin', origin)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    # response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response

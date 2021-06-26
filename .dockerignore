@@ -3,3 +3,7 @@ Dockerfile
 .gitignore
 .dockerignore
 README.md
+category_test.sh
+food_item_test.sh
+Makefile
+requirements.ini

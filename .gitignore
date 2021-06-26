@@ -131,3 +131,9 @@ dmypy.json
 # Local bullshit
 .DS_Store
 data/
+
+category_test.sh
+food_item_test.sh
+
+.vscode/
+k8s/

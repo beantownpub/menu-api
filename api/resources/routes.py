@@ -1,10 +1,10 @@
-from .menu_items import MenuItemsAPI, MenuItemAPI, SectionsAPI, DrinksAPI
-from .catering_menu import CateringAPI
+from .food import FoodAPI, FoodItemsAPI, FoodItemsByCategoyryAPI
+from .categories import CategoryAPI, CategoriesAPI
 
 
 def init_routes(api):
-    api.add_resource(MenuItemsAPI, '/v1/menu/items')
-    api.add_resource(MenuItemAPI, '/v1/menu/item/<item>')
-    api.add_resource(SectionsAPI, '/v1/menu/section/<category>')
-    api.add_resource(DrinksAPI, '/v1/menu/drinks/<category>')
-    api.add_resource(CateringAPI, '/v1/menu/catering')
+    api.add_resource(FoodItemsAPI, '/v1/menu/items')
+    api.add_resource(FoodItemsByCategoyryAPI, '/v1/menu/section/<category>')
+    api.add_resource(FoodAPI, '/v1/menu/item')
+    api.add_resource(CategoryAPI, '/v1/categories/<category>')
+    api.add_resource(CategoriesAPI, '/v1/categories')

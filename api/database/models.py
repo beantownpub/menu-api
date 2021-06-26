@@ -1,44 +1,25 @@
+from datetime import datetime
+
 from .db import db
 
 
-class MenuItem(db.Document):
-    name = db.StringField(max_length=120)
-    category = db.StringField()
-    description = db.StringField()
-    price = db.FloatField()
-    is_active = db.BooleanField(default=True)
-    location = db.StringField()
-    meta = {'allow_inheritance': True}
-
-    @property
-    def slug(self):
-        slug = self.name.lower().replace(' ', '-')
-        return slug
+class FoodItem(db.Model):
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    slug = db.Column(db.String(50), unique=True)
+    description = db.Column(db.String)
+    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean)
+    price = db.Column(db.Float)
+    category_id = db.Column(db.String, db.ForeignKey('category.name'), nullable=False)
 
 
-class CateringItem(db.Document):
-    name = db.StringField()
-    description = db.StringField()
-    category = db.StringField()
-    is_active = db.BooleanField(default=True)
+class Category(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
+    name = db.Column(db.String(50), unique=True)
+    is_active = db.Column(db.Boolean)
+    items = db.relationship('FoodItem', backref='category', lazy=True)
+    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
 
-
-class CateringCategory(db.Document):
-    name = db.StringField()
-    description = db.StringField()
-    is_active = db.BooleanField(default=True)
-    items = db.ListField(db.ReferenceField(CateringItem))
-
-
-class Drinks(db.Document):
-    name = db.StringField(max_length=120)
-    category = db.StringField()
-    description = db.StringField()
-    is_active = db.BooleanField(default=True)
-    location = db.StringField()
-    meta = {'allow_inheritance': True}
-
-    @property
-    def slug(self):
-        slug = self.name.lower().replace(' ', '-')
-        return slug
+    def __repr__(self):
+        return '<Category %r>' % self.name

@@ -1,0 +1,9 @@
+flask
+flask-cors
+flask-httpauth
+flask-sqlalchemy
+flask-restful
+gunicorn
+psycopg2
+pytz
+requests
