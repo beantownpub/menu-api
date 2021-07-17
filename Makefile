@@ -1,6 +1,16 @@
 .PHONY: all test clean
 
+env ?= dev
 pg_host ?= $(shell docker inspect pg | jq .[0].NetworkSettings.Networks.bridge.IPAddress || echo "no-container")
+version ?= $(shell git rev-parse --short HEAD)
+
+ifeq ($(env),dev)
+	pg_host = ${POSTGRES_IP}
+	pg_port = 32432
+else
+	pg_host = postgres.default.svc.cluster.local
+	pg_port = 5432
+endif
 
 compile:
 		pip-compile requirements.in
@@ -15,6 +25,10 @@ build_no_cache:
 publish: build
 		docker tag menu_api jalgraves/menu_api:pg-db
 		docker push jalgraves/menu_api:pg-db
+
+latest: build
+		docker tag menu_api jalgraves/menu_api:latest
+		docker push jalgraves/menu_api:latest
 
 start: stop
 		@echo "\033[1;32m. . . Starting Menu API container . . .\033[1;37m\n"

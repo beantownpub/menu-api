@@ -25,8 +25,10 @@ def verify_password(username, password):
     api_user = os.environ.get("API_USER")
     api_pwd = os.environ.get("API_USER_PWD")
     if username == api_user and password == api_pwd:
-        return True
-    return False
+        verified = True
+    else:
+        verified = False
+    return verified
 
 
 def get_food_item(name):
@@ -48,7 +50,8 @@ def get_food_item(name):
 def check_category_status(category):
     category = Category.query.filter_by(name=category).first()
     if category:
-        return category.is_active
+        category = category.is_active
+    return category
 
 
 def convert_food_item(food_item):
@@ -79,17 +82,15 @@ def get_active_food_items_by_category(category):
 def get_category(name):
     category = Category.query.filter_by(name=name).first()
     if category:
-        info = {
+        category = {
             'id': category.name
         }
-        return info
+    return category
 
 
 def get_all_categories():
     categories = Category.query.filter_by().all()
-    if categories:
-        app_log.info('CATEGORIES: %s', categories)
-        return categories
+    return categories
 
 
 def create_food_item(body):
@@ -129,7 +130,6 @@ def delete_food_item(food_item_name):
 def update_food_item(food_item_name):
     food_item = FoodItem.query.filter_by(name=food_item_name).first()
     if food_item:
-        food_item.price = 88.88
         db.session.add(food_item)
         db.session.commit()
 
@@ -183,6 +183,10 @@ class FoodAPI(Resource):
         else:
             return Response(status=404)
 
+    def options(self, location):
+        app_log.info('- ContactAPI | OPTIONS | %s', location)
+        return '', 200
+
 
 class FoodItemsAPI(Resource):
     @AUTH.login_required
@@ -204,3 +208,7 @@ class FoodItemsByCategoyryAPI(Resource):
             return Response(food_items, mimetype='application/json', status=200)
         else:
             return Response(status=404)
+
+    def options(self, location):
+        app_log.info('- ContactAPI | OPTIONS | %s', location)
+        return '', 200
