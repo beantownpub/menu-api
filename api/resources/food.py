@@ -183,6 +183,10 @@ class FoodAPI(Resource):
         else:
             return Response(status=404)
 
+    def options(self, location):
+        app_log.info('- ContactAPI | OPTIONS | %s', location)
+        return '', 200
+
 
 class FoodItemsAPI(Resource):
     @AUTH.login_required
@@ -204,3 +208,7 @@ class FoodItemsByCategoyryAPI(Resource):
             return Response(food_items, mimetype='application/json', status=200)
         else:
             return Response(status=404)
+
+    def options(self, location):
+        app_log.info('- ContactAPI | OPTIONS | %s', location)
+        return '', 200
