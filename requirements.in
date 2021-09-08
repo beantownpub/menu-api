@@ -1,6 +1,8 @@
 flask
 flask-cors
 flask-httpauth
+flask-migrate
+flask-script
 flask-sqlalchemy
 flask-restful
 gunicorn

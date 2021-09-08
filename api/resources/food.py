@@ -11,6 +11,9 @@ from api.database.db import db
 
 AUTH = HTTPBasicAuth()
 
+class MenuDBException(Exception):
+    """Base class for menu database exceptions"""
+
 
 if __name__ != '__main__':
     # json_logging.init_non_web(enable_json=True)
@@ -22,8 +25,8 @@ if __name__ != '__main__':
 
 @AUTH.verify_password
 def verify_password(username, password):
-    api_user = os.environ.get("API_USER")
-    api_pwd = os.environ.get("API_USER_PWD")
+    api_user = os.environ.get("API_USERNAME")
+    api_pwd = os.environ.get("API_PASSWORD")
     if username == api_user and password == api_pwd:
         verified = True
     else:
@@ -34,8 +37,8 @@ def verify_password(username, password):
 def get_food_item(name):
     food_item = FoodItem.query.filter_by(name=name).first()
     if food_item:
-        app_log.info('get_food_item Found %s', name)
-        app_log.info('Food Item: %s', dir(food_item))
+        app_log.debug('get_food_item Found %s', name)
+        app_log.debug('Food Item: %s', dir(food_item))
         info = {
             'name': food_item.name,
             'sku': food_item.id,
@@ -43,15 +46,13 @@ def get_food_item(name):
             'description': food_item.description,
             'price': food_item.price
         }
-        app_log.info(info)
+        app_log.debug(info)
         return info
 
 
 def check_category_status(category):
-    category = Category.query.filter_by(name=category).first()
-    if category:
-        category = category.is_active
-    return category
+    category = get_item_from_db('category', category)
+    return category.is_active
 
 
 def convert_food_item(food_item):
@@ -66,25 +67,20 @@ def convert_food_item(food_item):
 
 
 def get_active_food_items_by_category(category):
-    app_log.info('Getting all %s items', category)
+    app_log.debug('Getting all %s items', category)
+    food_item_list = []
     if check_category_status(category):
-        # food_items = FoodItem.query.filter(Category.name == category).all()
-        food_item_list = []
         food_items = FoodItem.query.filter(FoodItem.category.has(name=category)).all()
-        app_log.info('PRODUCTS: %s', food_items)
-        if food_items:
-            for food_item in food_items:
-                food_item_list.append(convert_food_item(food_item))
-        app_log.info(food_items[0].category)
-        return food_item_list
+        for food_item in food_items:
+            food_item_list.append(convert_food_item(food_item))
+    return food_item_list
 
 
 def get_category(name):
-    category = Category.query.filter_by(name=name).first()
-    if category:
-        category = {
-            'id': category.name
-        }
+    category = get_item_from_db('category', name)
+    category = {
+        'id': category.name
+    }
     return category
 
 
@@ -93,44 +89,38 @@ def get_all_categories():
     return categories
 
 
-def create_food_item(body):
-    app_log.debug('BODY - %s', body)
-    name = body['name']
-    slug = name.lower().replace(' ', '-')
-    # sku = body['sku']
-    description = body['description']
-    # category = body['category']
-    is_active = body['is_active']
-    price = float(body['price'])
-    if not get_food_item(name):
-        category = Category.query.filter_by(name=body['category']).first()
-        # db.session.commit()
-        food_item = FoodItem(
-            name=name,
-            slug=slug,
-            is_active=is_active,
-            category_id=category.name,
-            description=description,
-            price=price
-        )
-        db.session.add(food_item)
-        db.session.commit()
-    food_item = get_food_item(name)
-    if food_item:
-        return food_item
+def get_item_from_db(table_name, item_name):
+    if table_name == "food_item":
+        item = FoodItem.query.filter_by(name=item_name).first()
+    elif table_name == "category":
+        item = Category.query.filter_by(name=item_name).first()
+    else:
+        raise MenuDBException(f"DB Table {table_name} not found")
+    assert(item is not None)
+    return item
 
 
-def delete_food_item(food_item_name):
-    food_item = FoodItem.query.filter_by(name=food_item_name).first()
-    if food_item:
-        db.session.delete(food_item)
-        db.session.commit()
-
-
-def update_food_item(food_item_name):
-    food_item = FoodItem.query.filter_by(name=food_item_name).first()
-    if food_item:
-        db.session.add(food_item)
+def run_db_action(action, item=None, body=None):
+    if not item:
+        raise MenuDBException("Cannot run a DB action on empty item")
+    if action == "delete":
+        db.session.delete(item)
+    elif action == "update":
+        db.session.add(item)
+    elif action == "create":
+        slug = body['name'].lower().replace(' ', '-')
+        try:
+            get_item_from_db('food_item', body['name'])
+        except MenuDBException:
+            food_item = FoodItem(
+                name=body['name'],
+                slug=slug,
+                is_active=body['is_active'],
+                category_id=item.name,
+                description=body['description'],
+                price=float(body['price'])
+            )
+            db.session.add(food_item)
         db.session.commit()
 
 
@@ -139,49 +129,45 @@ class FoodAPI(Resource):
     def post(self):
         body = request.json
         app_log.info("WTF: %s", body)
-        if not get_category(body["category"]):
+        try:
+            category = get_item_from_db('category', body["category"])
+        except MenuDBException:
             resp = {
                 "status": 400,
                 "response": "Bad Request: Category not found"
             }
-        else:
-            food_item = create_food_item(body)
-            if food_item:
-                resp = {"status": 201}
-            else:
+            return resp
+        try:
+            run_db_action(category, 'create', body)
+        except MenuDBException:
                 resp = {"status": 500}
+        finally:
+            resp = {"status": 201}
         return Response(**resp)
 
     @AUTH.login_required
     def get(self):
         body = request.get_json()
-        name = body['name']
-        food_item = get_food_item(name)
-        if food_item:
-            return Response(status=200)
-        else:
+        try:
+            get_item_from_db('food_item', body['name'])
+        except MenuDBException:
             return Response(status=404)
+        return Response(status=200)
 
     @AUTH.login_required
     def delete(self):
         body = request.get_json()
-        app_log.info('DELETING %s', body['name'])
-        delete_food_item(body['name'])
-        food_item = get_food_item(body['name'])
-        if food_item:
+        app_log.debug('DELETING %s', body['name'])
+        food_item = get_item_from_db('food_item', body['name'])
+        try:
+            run_db_action(food_item, 'delete')
+        except MenuDBException:
             return Response(status=500)
-        else:
-            return Response(status=204)
+        return Response(status=204)
 
     @AUTH.login_required
     def put(self):
-        body = request.get_json()
-        name = body['name']
-        food_item = update_food_item(name)
-        if food_item:
-            return Response(status=200)
-        else:
-            return Response(status=404)
+        pass
 
     def options(self, location):
         app_log.info('- ContactAPI | OPTIONS | %s', location)
@@ -210,5 +196,5 @@ class FoodItemsByCategoyryAPI(Resource):
             return Response(status=404)
 
     def options(self, location):
-        app_log.info('- ContactAPI | OPTIONS | %s', location)
+        app_log.info('- MenuAPI | OPTIONS | %s', location)
         return '', 200
