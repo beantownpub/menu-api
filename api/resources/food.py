@@ -3,11 +3,13 @@ import os
 import logging
 
 from flask import Response, request
-from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
 
 from api.database.models import FoodItem, Category
 from api.database.db import db
+# from api.utils import verify_password
+
+from flask_httpauth import HTTPBasicAuth
 
 AUTH = HTTPBasicAuth()
 
@@ -18,17 +20,6 @@ if __name__ != '__main__':
     # json_logging.config_root_logger()
     gunicorn_logger = logging.getLogger('gunicorn.error')
     app_log.handlers = gunicorn_logger.handlers
-
-
-@AUTH.verify_password
-def verify_password(username, password):
-    api_user = os.environ.get("API_USER")
-    api_pwd = os.environ.get("API_USER_PWD")
-    if username == api_user and password == api_pwd:
-        verified = True
-    else:
-        verified = False
-    return verified
 
 
 def get_food_item(name):

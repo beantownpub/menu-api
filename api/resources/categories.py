@@ -54,12 +54,12 @@ def convert_category(category):
 def get_category(name):
     category = Category.query.filter_by(name=name).first()
     if category:
-        info = {
+        category = {
             'name': category.name,
             'is_active': category.is_active,
             'id': category.id
         }
-        return info
+    return category
 
 
 def update_category(name, request):
@@ -73,8 +73,7 @@ def update_category(name, request):
         return get_category(body['name'])
 
 
-def get_all_categories():
-    category_list = []
+def read_categories_from_db():
     try:
         categories = Category.query.filter_by().all()
     except sqlalchemy.exc.OperationalError:
@@ -83,12 +82,18 @@ def get_all_categories():
             categories = Category.query.filter_by().all()
         except sqlalchemy.exc.OperationalError:
             raise
+    return categories
+
+
+def get_all_categories():
+    category_list = []
+    categories = read_categories_from_db()
     if categories:
         for category in categories:
             category = get_category(category.name)
             category_list.append(category)
         # app_log.info('Categories: %s', category_list)
-        return [x for x in category_list if x]
+    return [x for x in category_list if x]
 
 
 def get_categories_and_food_items():
@@ -110,23 +115,27 @@ def get_categories_and_food_items():
     return category_list
 
 
-def create_category(request):
-    body = request.get_json()
-    name = body['name']
-    is_active = body['is_active']
-    if not get_category(name):
+def write_to_db(name, is_active):
+    try:
+        category = Category(name=name, is_active=is_active)
+        db.session.add(category)
+        db.session.commit()
+    except sqlalchemy.exc.OperationalError:
+        app_log.error('DB ERROR')
         try:
             category = Category(name=name, is_active=is_active)
             db.session.add(category)
             db.session.commit()
         except sqlalchemy.exc.OperationalError:
-            app_log.error('DB ERROR')
-            try:
-                category = Category(name=name, is_active=is_active)
-                db.session.add(category)
-                db.session.commit()
-            except sqlalchemy.exc.OperationalError:
-                raise
+            raise
+
+
+def create_category(request):
+    body = request.get_json()
+    name = body['name']
+    is_active = body['is_active']
+    if not get_category(name):
+        write_to_db(name, is_active)
     category = get_category(name)
     if category:
         return category
