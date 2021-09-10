@@ -8,8 +8,7 @@ from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
 
-from api.database.models import Category, FoodItem
-from api.database.db import db
+from api.database.models import Category
 from api.libs.db_utils import run_db_action, get_item_from_db
 
 AUTH = HTTPBasicAuth()

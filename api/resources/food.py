@@ -6,11 +6,11 @@ from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
 
-from api.database.models import FoodItem, Category
-# from api.database.db import db
+from api.database.models import FoodItem
 from api.libs.db_utils import run_db_action, get_item_from_db
 
 AUTH = HTTPBasicAuth()
+TABLE = 'food_item'
 
 class MenuDBException(Exception):
     """Base class for menu database exceptions"""
@@ -60,11 +60,6 @@ def get_active_food_items_by_category(category):
     return food_item_list
 
 
-def get_all_categories():
-    categories = Category.query.filter_by().all()
-    return categories
-
-
 class FoodAPI(Resource):
     @AUTH.login_required
     def post(self, name):
@@ -78,13 +73,13 @@ class FoodAPI(Resource):
                 "response": "Bad Request: Category not found"
             }
             return resp
-        run_db_action(action='create', item=category, body=body, table='food_item')
+        run_db_action(action='create', item=category, body=body, table=TABLE)
         resp = {"status": 201}
         return Response(**resp)
 
     @AUTH.login_required
     def get(self, name):
-        food_item = get_item_from_db('food_item', name)
+        food_item = get_item_from_db(TABLE, name)
         if not food_item:
             return Response(status=404)
         food_item = json.dumps(food_item_to_dict(food_item))
@@ -93,7 +88,7 @@ class FoodAPI(Resource):
     @AUTH.login_required
     def delete(self, name):
         app_log.debug('Deleting food item %s', name)
-        food_item = get_item_from_db('food_item', name)
+        food_item = get_item_from_db(TABLE, name)
         run_db_action(action='delete', item=food_item)
         return Response(status=204)
 
@@ -101,10 +96,10 @@ class FoodAPI(Resource):
     def put(self, name):
         body = request.json
         app_log.info("PUT Body: %s", body)
-        food_item = get_item_from_db('food_item', name)
+        food_item = get_item_from_db(TABLE, name)
         if not food_item:
             return Response(status=404)
-        run_db_action(action='update', item=food_item, body=body, table='food_item')
+        run_db_action(action='update', item=food_item, body=body, table=TABLE)
         resp = {"status": 201}
         return Response(**resp)
 
