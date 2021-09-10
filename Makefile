@@ -2,7 +2,7 @@
 
 env ?= dev
 pg_host ?= $(shell docker inspect pg | jq .[0].NetworkSettings.Networks.bridge.IPAddress || echo "no-container")
-version ?= $(shell git rev-parse --short HEAD)
+tag ?= $(shell yq eval '.info.version' swagger.yaml)
 
 ifeq ($(env),dev)
 	pg_host = ${POSTGRES_IP}
@@ -17,17 +17,17 @@ compile:
 
 build:
 		@echo "\033[1;32m. . . Building Menu API image . . .\033[1;37m\n"
-		docker build -t menu_api .
+		docker build -t menu_api:$(tag) .
 
 build_no_cache:
 		docker build -t menu_api . --no-cache=true
 
 publish: build
-		docker tag menu_api jalgraves/menu_api:pg-db
-		docker push jalgraves/menu_api:pg-db
+		docker tag menu_api:$(tag) jalgraves/menu_api:$(tag)
+		docker push jalgraves/menu_api:$(tag)
 
 latest: build
-		docker tag menu_api jalgraves/menu_api:latest
+		docker tag menu_api:$(tag) jalgraves/menu_api:latest
 		docker push jalgraves/menu_api:latest
 
 start: stop

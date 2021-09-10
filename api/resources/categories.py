@@ -10,8 +10,10 @@ from flask_restful import Resource
 
 from api.database.models import Category, FoodItem
 from api.database.db import db
+from api.libs.db_utils import run_db_action, get_item_from_db
 
 AUTH = HTTPBasicAuth()
+TABLE = 'category'
 
 
 if __name__ != '__main__':
@@ -23,54 +25,20 @@ if __name__ != '__main__':
 
 @AUTH.verify_password
 def verify_password(username, password):
-    api_user = os.environ.get("API_USER")
-    api_pwd = os.environ.get("API_USER_PWD")
-    if username == api_user and password == api_pwd:
+    app_log.info("Verifying user %s", username)
+    if password.strip() == os.environ.get("API_PASSWORD"):
         return True
     return False
 
 
-def food_item_to_dict(food_item):
-    food_item_dict = {
-        'name': food_item.name,
-        'sku': food_item.id,
-        'category': food_item.category.name,
-        'description': food_item.description,
-        'price': food_item.price,
-        'is_active': food_item.is_active
-    }
-    return food_item_dict
-
-
-def convert_category(category):
+def category_to_dict(category):
     category_dict = {
         'name': category.name,
-        'is_active': category.is_active,
-        'id': category.id
+        'sku': category.id,
+        'is_active': category.is_active
     }
     return category_dict
 
-
-def get_category(name):
-    category = Category.query.filter_by(name=name).first()
-    if category:
-        info = {
-            'name': category.name,
-            'is_active': category.is_active,
-            'id': category.id
-        }
-        return info
-
-
-def update_category(name, request):
-    category = Category.query.filter_by(name=name).first()
-    if category:
-        body = request.get_json()
-        category.name = body['name']
-        category.is_active = body['is_active']
-        db.session.add(category)
-        db.session.commit()
-        return get_category(body['name'])
 
 
 def get_all_categories():
@@ -85,64 +53,16 @@ def get_all_categories():
             raise
     if categories:
         for category in categories:
-            category = get_category(category.name)
+            category = get_item_from_db(TABLE, category.name)
             category_list.append(category)
         # app_log.info('Categories: %s', category_list)
         return [x for x in category_list if x]
 
 
-def get_categories_and_food_items():
-    app_log.info('Getting all categories and food items')
-    category_list = []
-    categories = get_all_categories()
-    if categories:
-        app_log.info('Categories: %s', categories)
-        for cat in categories:
-            app_log.info('Category: %s', cat)
-            food_item_list = []
-            food_items = FoodItem.query.filter(FoodItem.category.has(name=cat['name'])).all()
-            if food_items:
-                app_log.info('Items: %s', food_items)
-                for food_item in food_items:
-                    food_item_list.append(food_item_to_dict(food_item))
-            cat['items'] = food_item_list
-            category_list.append(cat)
-    return category_list
-
-
-def create_category(request):
-    body = request.get_json()
-    name = body['name']
-    is_active = body['is_active']
-    if not get_category(name):
-        try:
-            category = Category(name=name, is_active=is_active)
-            db.session.add(category)
-            db.session.commit()
-        except sqlalchemy.exc.OperationalError:
-            app_log.error('DB ERROR')
-            try:
-                category = Category(name=name, is_active=is_active)
-                db.session.add(category)
-                db.session.commit()
-            except sqlalchemy.exc.OperationalError:
-                raise
-    category = get_category(name)
-    if category:
-        return category
-
-
-def delete_category(category_name):
-    category = Category.query.filter_by(name=category_name).first()
-    if category:
-        db.session.delete(category)
-        db.session.commit()
-
-
 class CategoriesAPI(Resource):
     @AUTH.login_required
     def get(self):
-        categories = get_categories_and_food_items()
+        categories = get_all_categories()
         if categories:
             categories = json.dumps(categories)
             return Response(categories, mimetype='application/json', status=200)
@@ -152,38 +72,40 @@ class CategoriesAPI(Resource):
 
 class CategoryAPI(Resource):
     @AUTH.login_required
-    def post(self, category):
-        app_log.info('Creating category %s', category)
-        category = create_category(request)
-        if category:
-            return Response(status=201)
-        else:
-            return Response(status=500)
+    def post(self, name):
+        app_log.info('Creating category %s', name)
+        body = request.get_json()
+        run_db_action(action='create', body=body, table=TABLE)
+        resp = {"status": 201}
+        return Response(**resp)
 
     @AUTH.login_required
-    def delete(self, category):
-        app_log.info('DELETING %s', category)
-        delete_category(category)
-        category = get_category(category)
-        if category:
-            return Response(status=500)
-        else:
-            return Response(status=204)
+    def delete(self, name):
+        app_log.debug('Deleting category %s', name)
+        category = get_item_from_db(TABLE, name)
+        run_db_action(action='delete', item=category)
+        return Response(status=204)
 
     @AUTH.login_required
-    def get(self, category):
-        app_log.info("GET Category: %s", category)
-        category = get_category(category)
-        if category:
-            return Response(status=200)
-        else:
+    def get(self, name):
+        app_log.info("GET Category: %s", name)
+        category = get_item_from_db(TABLE, name)
+        if not category:
             return Response(status=404)
+        category = json.dumps(category_to_dict(category))
+        return Response(category, mimetype='application/json', status=200)
 
     @AUTH.login_required
-    def put(self, category):
-        app_log.info('Updating category %s', category)
-        category = update_category(category, request)
-        if category:
-            return Response(status=204)
-        else:
-            return Response(status=500)
+    def put(self, name):
+        body = request.json
+        app_log.info("PUT Body: %s", body)
+        category = get_item_from_db(TABLE, name)
+        if not category:
+            return Response(status=404)
+        run_db_action(action='update', item=category, body=body, table=TABLE)
+        resp = {"status": 201}
+        return Response(**resp)
+
+    def options(self, location):
+        app_log.info('- CategoryAPI | OPTIONS | %s', location)
+        return '', 200
