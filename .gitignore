@@ -138,3 +138,4 @@ food_item_test.sh
 .vscode/
 k8s/
 bin/beantown_menu.json
+tmp.py

@@ -25,7 +25,7 @@ if __name__ != '__main__':
 @AUTH.verify_password
 def verify_password(username, password):
     api_pwd = os.environ.get("API_PASSWORD")
-    app_log.info("Verifying %s", username)
+    app_log.debug("Verifying %s", username)
     if password.strip() == api_pwd:
         verified = True
     else:
@@ -45,9 +45,18 @@ def food_item_to_dict(food_item):
         'sku': food_item.id,
         'category': food_item.category.name,
         'description': food_item.description,
-        'price': food_item.price
+        'price': food_item.price,
+        'slug': food_item.slug
     }
     return food_item_dict
+
+
+def get_food_item_by_slug(slug):
+    app_log.debug('Getting item %s ', slug)
+    # food_item = FoodItem.query.filter(FoodItem.slug(slug=slug)).all()
+    food_item = FoodItem.query.filter_by(slug=slug).first()
+    if food_item:
+        return food_item
 
 
 def get_active_food_items_by_category(category):
@@ -56,7 +65,8 @@ def get_active_food_items_by_category(category):
     if check_category_status(category):
         food_items = FoodItem.query.filter(FoodItem.category.has(name=category)).all()
         for food_item in food_items:
-            food_item_list.append(food_item_to_dict(food_item))
+            if food_item.is_active:
+                food_item_list.append(food_item_to_dict(food_item))
     return food_item_list
 
 
@@ -64,9 +74,10 @@ class FoodAPI(Resource):
     @AUTH.login_required
     def post(self, name):
         body = request.json
-        app_log.info("POST Body: %s", body)
+        app_log.debug("POST Body: %s", body)
         category = get_item_from_db('category', body["category_id"])
-        body['slug'] = name.lower().replace(' ', '-')
+        if not body.get('slug'):
+            body['slug'] = body['name'].lower().replace(' ', '-')
         if not category:
             resp = {
                 "status": 400,
@@ -79,7 +90,9 @@ class FoodAPI(Resource):
 
     @AUTH.login_required
     def get(self, name):
-        food_item = get_item_from_db(TABLE, name)
+        app_log.info("GET Name: %s", name)
+        food_item = get_food_item_by_slug(name)
+        app_log.info("FOOD ITEM: %s", food_item)
         if not food_item:
             return Response(status=404)
         food_item = json.dumps(food_item_to_dict(food_item))
@@ -88,7 +101,9 @@ class FoodAPI(Resource):
     @AUTH.login_required
     def delete(self, name):
         app_log.debug('Deleting food item %s', name)
-        food_item = get_item_from_db(TABLE, name)
+        food_item = get_food_item_by_slug(name)
+        if not food_item:
+            return Response(status=404)
         run_db_action(action='delete', item=food_item)
         return Response(status=204)
 
@@ -96,7 +111,7 @@ class FoodAPI(Resource):
     def put(self, name):
         body = request.json
         app_log.info("PUT Body: %s", body)
-        food_item = get_item_from_db(TABLE, name)
+        food_item = get_food_item_by_slug(name)
         if not food_item:
             return Response(status=404)
         run_db_action(action='update', item=food_item, body=body, table=TABLE)

@@ -23,3 +23,12 @@ class Category(db.Model):
 
     def __repr__(self):
         return '<Category %r>' % self.name
+
+
+class Side(db.Model):
+    _tablename_ = 'sides'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean)
+    price = db.Column(db.Float)

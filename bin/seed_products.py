@@ -6,9 +6,12 @@ import requests
 
 from requests.auth import HTTPBasicAuth
 
-HOST = os.environ.get('API_HOST')
-PROTOCOL = os.environ.get('API_PROTOCOL', 'http')
+HOST = os.environ.get('MENU_API_HOST')
 AUTH = HTTPBasicAuth(os.environ.get('API_USERNAME'), os.environ.get('API_PASSWORD'))
+PROTOCOL = os.environ.get('MENU_API_PROTOCOL')
+HEADERS = {
+    "Content-Type": "application/json"
+}
 
 
 def get_data(menu_file) -> dict:
@@ -17,9 +20,22 @@ def get_data(menu_file) -> dict:
     return menu
 
 
+def get_item(slug):
+    url = f"{PROTOCOL}://{HOST}/v1/menu/{slug}"
+    r = requests.get(url, auth=AUTH, headers=HEADERS)
+    print(f"Item {slug} status {r.status_code}")
+    return r.status_code
+
+
 def post_item(menu_item):
     url = f"{PROTOCOL}://{HOST}/v1/menu/{menu_item['name']}"
     r = requests.post(url, json=menu_item, auth=AUTH)
+    print(r.status_code)
+
+
+def put_item(menu_item):
+    url = f"{PROTOCOL}://{HOST}/v1/menu/{menu_item['slug']}"
+    r = requests.put(url, json=menu_item, auth=AUTH)
     print(r.status_code)
 
 
@@ -37,7 +53,15 @@ def create_food_items(menu):
             if i.get('location'):
                 del i['location']
             if sys.argv[1] == 'add':
-                post_item(i)
+                if not i.get('slug'):
+                    i['slug'] = i['name'].lower().replace(' ', '-')
+                status = get_item(i['slug'])
+                if status == 200:
+                    print(f"UPDATING item {i['name']}")
+                    put_item(i)
+                else:
+                    print(f"CREATING item {i['name']}")
+                    post_item(i)
             else:
                 delete_item(i)
 

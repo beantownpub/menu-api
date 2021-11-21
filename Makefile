@@ -1,7 +1,7 @@
 .PHONY: all test clean
 
 env ?= dev
-pg_host ?= $(shell docker inspect pg | jq .[0].NetworkSettings.Networks.bridge.IPAddress || echo "no-container")
+pg_host ?= test-db
 tag ?= $(shell yq eval '.info.version' swagger.yaml)
 
 ifeq ($(env),dev)

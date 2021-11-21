@@ -1,8 +1,0 @@
-{
-    "name": "buzz",
-    "price": 8.88,
-    "category_id": "foo",
-    "description": "this should be updated",
-    "slug": "shit",
-    "is_active": true
-}
