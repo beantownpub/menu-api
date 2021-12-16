@@ -1,6 +1,5 @@
 import json
 import os
-import logging
 
 from flask import Response, request
 from flask_httpauth import HTTPBasicAuth
@@ -8,6 +7,7 @@ from flask_restful import Resource
 
 from api.database.models import FoodItem
 from api.libs.db_utils import run_db_action, get_item_from_db
+from api.libs.logging import init_logger
 
 AUTH = HTTPBasicAuth()
 TABLE = 'food_item'
@@ -15,21 +15,19 @@ TABLE = 'food_item'
 class MenuDBException(Exception):
     """Base class for menu database exceptions"""
 
-
-if __name__ != '__main__':
-    app_log = logging.getLogger()
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    app_log.handlers = gunicorn_logger.handlers
+LOG_LEVEL = os.environ.get('LOG_LEVEL')
+LOG = init_logger(LOG_LEVEL)
+LOG.info('food.py logging level %s', LOG_LEVEL)
 
 
 @AUTH.verify_password
 def verify_password(username, password):
     api_pwd = os.environ.get("API_PASSWORD")
-    app_log.debug("Verifying %s", username)
+    LOG.debug("Verifying %s", username)
     if password.strip() == api_pwd:
         verified = True
     else:
-        app_log.info('Access Denied')
+        LOG.info('Access Denied')
         verified = False
     return verified
 
@@ -46,21 +44,21 @@ def food_item_to_dict(food_item):
         'category': food_item.category.name,
         'description': food_item.description,
         'price': food_item.price,
-        'slug': food_item.slug
+        'slug': food_item.slug,
+        'is_active': food_item.is_active
     }
     return food_item_dict
 
 
 def get_food_item_by_slug(slug):
-    app_log.debug('Getting item %s ', slug)
-    # food_item = FoodItem.query.filter(FoodItem.slug(slug=slug)).all()
+    LOG.debug('Getting item %s ', slug)
     food_item = FoodItem.query.filter_by(slug=slug).first()
     if food_item:
         return food_item
 
 
 def get_active_food_items_by_category(category):
-    app_log.debug('Getting all %s items', category)
+    LOG.debug('Getting active %s items', category)
     food_item_list = []
     if check_category_status(category):
         food_items = FoodItem.query.filter(FoodItem.category.has(name=category)).all()
@@ -70,11 +68,21 @@ def get_active_food_items_by_category(category):
     return food_item_list
 
 
+def get_all_food_items_by_category(category):
+    LOG.debug('Getting all %s items', category)
+    food_item_list = []
+    if check_category_status(category):
+        food_items = FoodItem.query.filter(FoodItem.category.has(name=category)).all()
+        for food_item in food_items:
+            food_item_list.append(food_item_to_dict(food_item))
+    return food_item_list
+
+
 class FoodAPI(Resource):
     @AUTH.login_required
     def post(self, name):
         body = request.json
-        app_log.debug("POST Body: %s", body)
+        LOG.debug("POST Item path /%s | %s", name, body)
         category = get_item_from_db('category', body["category_id"])
         if not body.get('slug'):
             body['slug'] = body['name'].lower().replace(' ', '-')
@@ -83,6 +91,7 @@ class FoodAPI(Resource):
                 "status": 400,
                 "response": "Bad Request: Category not found"
             }
+            LOG.info('404 POST Item %s not found', name)
             return resp
         run_db_action(action='create', item=category, body=body, table=TABLE)
         resp = {"status": 201}
@@ -90,19 +99,19 @@ class FoodAPI(Resource):
 
     @AUTH.login_required
     def get(self, name):
-        app_log.info("GET Name: %s", name)
         food_item = get_food_item_by_slug(name)
-        app_log.info("FOOD ITEM: %s", food_item)
         if not food_item:
+            LOG.info('404 GET Item %s not found', name)
             return Response(status=404)
         food_item = json.dumps(food_item_to_dict(food_item))
         return Response(food_item, mimetype='application/json', status=200)
 
     @AUTH.login_required
     def delete(self, name):
-        app_log.debug('Deleting food item %s', name)
+        LOG.debug('Deleting food item %s', name)
         food_item = get_food_item_by_slug(name)
         if not food_item:
+            LOG.info('404 DELETE Item %s not found', name)
             return Response(status=404)
         run_db_action(action='delete', item=food_item)
         return Response(status=204)
@@ -110,16 +119,17 @@ class FoodAPI(Resource):
     @AUTH.login_required
     def put(self, name):
         body = request.json
-        app_log.info("PUT Body: %s", body)
+        LOG.debug("Updating food item %s", name)
         food_item = get_food_item_by_slug(name)
         if not food_item:
+            LOG.info('404 PUT Item %s not found', name)
             return Response(status=404)
         run_db_action(action='update', item=food_item, body=body, table=TABLE)
         resp = {"status": 201}
         return Response(**resp)
 
     def options(self, location):
-        app_log.info('- FoodAPI | OPTIONS | %s', location)
+        LOG.info('- FoodAPI | OPTIONS | %s', location)
         return '', 200
 
 
@@ -131,19 +141,21 @@ class FoodItemsAPI(Resource):
             food_items = json.dumps(food_items)
             return Response(food_items, mimetype='application/json', status=200)
         else:
+            LOG.info('404 Category %s not found', category)
             return Response(status=404)
 
 
 class FoodItemsByCategoyryAPI(Resource):
-    # @AUTH.login_required
+    @AUTH.login_required
     def get(self, category):
         food_items = get_active_food_items_by_category(category)
         if food_items:
             food_items = json.dumps(food_items)
             return Response(food_items, mimetype='application/json', status=200)
         else:
+            LOG.info('404 Category %s food_items not found', category)
             return Response(status=404)
 
     def options(self, location):
-        app_log.info('- MenuAPI | OPTIONS | %s', location)
+        LOG.info('- MenuAPI | OPTIONS | %s', location)
         return '', 200

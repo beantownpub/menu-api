@@ -20,6 +20,7 @@ class Category(db.Model):
     is_active = db.Column(db.Boolean)
     items = db.relationship('FoodItem', backref='category', lazy=True)
     creation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(50), unique=True)
 
     def __repr__(self):
         return '<Category %r>' % self.name
@@ -32,3 +33,4 @@ class Side(db.Model):
     creation_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean)
     price = db.Column(db.Float)
+    slug = db.Column(db.String(50), unique=True)

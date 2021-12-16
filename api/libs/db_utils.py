@@ -14,6 +14,14 @@ TABLES = {
 }
 
 
+def get_item_by_slug(table_name, slug):
+    table = TABLES.get(table_name)
+    # app_log.debug('Getting item %s ', slug)
+    item = table.query.filter_by(slug=slug).first()
+    if item:
+        return item
+
+
 def _db_update(item, table_name, body):
     item.name = body['name']
     item.is_active = body['is_active']

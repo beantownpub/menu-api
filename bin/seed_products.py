@@ -7,7 +7,10 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 HOST = os.environ.get('MENU_API_HOST')
-AUTH = HTTPBasicAuth(os.environ.get('API_USERNAME'), os.environ.get('API_PASSWORD'))
+USER = os.environ.get('API_USERNAME')
+PWD = os.environ.get('API_PASSWORD')
+print(f"Username: {USER} - Password: {PWD} |")
+AUTH = HTTPBasicAuth(username=os.environ.get('API_USERNAME'), password=os.environ.get('API_PASSWORD'))
 PROTOCOL = os.environ.get('MENU_API_PROTOCOL')
 HEADERS = {
     "Content-Type": "application/json"
@@ -23,11 +26,12 @@ def get_data(menu_file) -> dict:
 def get_item(slug):
     url = f"{PROTOCOL}://{HOST}/v1/menu/{slug}"
     r = requests.get(url, auth=AUTH, headers=HEADERS)
-    print(f"Item {slug} status {r.status_code}")
+    print(f"Item {slug} status {r.status_code} {r.content}")
     return r.status_code
 
 
 def post_item(menu_item):
+    print(f"Posting {menu_item['name']}")
     url = f"{PROTOCOL}://{HOST}/v1/menu/{menu_item['name']}"
     r = requests.post(url, json=menu_item, auth=AUTH)
     print(r.status_code)
@@ -74,11 +78,11 @@ def create_categories(menu):
         }
         url = f"{PROTOCOL}://{HOST}/v1/categories/{category}"
         r = requests.post(url, json=data, auth=AUTH)
-        print(f"Status: {r.status_code}")
+        print(f"Status {category}: {r.status_code}")
 
 
 if __name__ == '__main__':
     print(__file__)
-    menu = get_data('bin/beantown_menu.json')
+    menu = get_data('bin/data/beantown_menu.json')
     create_categories(menu)
     create_food_items(menu)

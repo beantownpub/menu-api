@@ -6,6 +6,7 @@ from flask_restful import Api
 from flask_cors import CORS
 
 from api.database.db import init_database
+from api.libs.logging import init_logger
 from api.resources.routes import init_routes
 
 
@@ -13,7 +14,7 @@ class MenuAppException(Exception):
     """base class for menu exceptions """
 
 
-LOG_LEVEL = os.environ.get('MERCH_API_LOG_LEVEL', 'INFO')
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 ORIGIN_URL = os.environ.get('ORIGIN_URL')
 APP = Flask(__name__.split('.')[0], instance_path='/opt/app/api')
 API = Api(APP)
@@ -56,24 +57,20 @@ cors = CORS(
     supports_credentials=True
 )
 
+LOG = init_logger(os.environ.get('LOG_LEVEL'))
+
 init_database(APP)
-APP.logger.info('DB initialized')
+LOG.info('DB initialized')
 init_routes(API)
-APP.logger.info('Routes initialized')
+LOG.info('Routes initialized')
 
-
-if __name__ != '__main__':
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    gunicorn_logger.addHandler(logging.StreamHandler())
-    APP.logger.handlers = gunicorn_logger.handlers
-    APP.logger.setLevel(LOG_LEVEL)
 
 
 @APP.after_request
 def after_request(response):
     origin = request.environ.get('HTTP_ORIGIN')
     if origin and origin in ORIGINS:
-        APP.logger.info(' - ADDING ORIGIN HEADER | %s', origin)
+        LOG.info(' - ADDING ORIGIN HEADER | %s', origin)
         response.headers.add('Access-Control-Allow-Origin', origin)
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
