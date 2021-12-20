@@ -1,33 +1,37 @@
-import logging
-
+import os
 from api.database.models import FoodItem, Category
 from api.database.db import db
 
+from .logging import init_logger
 
 class MenuDBException(Exception):
     """Base class for menu database exceptions"""
 
+LOG_LEVEL = os.environ.get('LOG_LEVEL')
+LOG = init_logger(LOG_LEVEL)
+LOG.info('Log Level %s', LOG_LEVEL)
 
 TABLES = {
-    "food_item": FoodItem,
-    "category": Category
+    "food_items": FoodItem,
+    "categories": Category
 }
 
 
 def get_item_by_slug(table_name, slug):
     table = TABLES.get(table_name)
-    # app_log.debug('Getting item %s ', slug)
+    #LOG.debug('%s', slug)
     item = table.query.filter_by(slug=slug).first()
     if item:
         return item
 
 
 def _db_update(item, table_name, body):
+    #LOG.debug('Item: %s | Table: %s | Body: %s', item, table_name, body)
     item.name = body['name']
     item.is_active = body['is_active']
-    if table_name == 'category':
+    if table_name == 'categories':
         db.session.add(item)
-    elif table_name == 'food_item':
+    elif table_name == 'food_items':
         item.description = body['description']
         item.price = body['price']
         item.category_id = body['category_id']
@@ -38,19 +42,15 @@ def _db_update(item, table_name, body):
 
 
 def _db_write(table_name, body):
+    #LOG.debug('Table: %s | Body: %s ', table_name, body)
     table = TABLES.get(table_name)
     if not get_item_from_db(table_name, body['name']):
         item = table(**body)
         db.session.add(item)
 
 
-if __name__ != '__main__':
-    app_log = logging.getLogger()
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    app_log.handlers = gunicorn_logger.handlers
-
-
 def get_item_from_db(table_name, item_name):
+    #LOG.debug('Table: %s | Item: %s', table_name, item_name)
     table = TABLES.get(table_name)
     if not table:
         raise MenuDBException(f"DB Table {table_name} not found")
@@ -59,6 +59,7 @@ def get_item_from_db(table_name, item_name):
 
 
 def run_db_action(action, item=None, body=None, table=None):
+    #LOG.debug('%s | Table: %s | Item: %s | Body: %s', action, table, item, body)
     if action == "create":
         _db_write(body=body, table_name=table)
     elif action == "update":

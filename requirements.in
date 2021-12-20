@@ -6,6 +6,7 @@ flask-script
 flask-sqlalchemy
 flask-restful
 gunicorn
+json-logging
 psycopg2
 pytz
 requests
