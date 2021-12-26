@@ -1,5 +1,5 @@
 import os
-from api.database.models import FoodItem, Category
+from api.database.models import FoodItem, Category, Side
 from api.database.db import db
 
 from .logging import init_logger
@@ -13,7 +13,8 @@ LOG.info('Log Level %s', LOG_LEVEL)
 
 TABLES = {
     "food_items": FoodItem,
-    "categories": Category
+    "categories": Category,
+    "sides": Side
 }
 
 
@@ -23,6 +24,13 @@ def get_item_by_slug(table_name, slug):
     item = table.query.filter_by(slug=slug).first()
     if item:
         return item
+
+
+def get_item_by_sku(table_name, sku):
+    table = TABLES.get(table_name)
+    LOG.debug('Table: %s | SKU: %s', table_name, sku)
+    item = table.query.filter_by(id=sku)
+    return item
 
 
 def _db_update(item, table_name, body):

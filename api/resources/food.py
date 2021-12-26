@@ -8,7 +8,7 @@ from flask_restful import Resource
 from api.database.models import FoodItem
 from api.libs.db_utils import run_db_action, get_item_from_db
 from api.libs.logging import init_logger
-from api.libs.utils import convert_to_bool
+from api.libs.utils import convert_to_bool, ParamArgs
 
 AUTH = HTTPBasicAuth()
 TABLE = 'food_items'
@@ -103,7 +103,7 @@ class FoodAPI(Resource):
     def post(self, name):
         body = request.json
         body['slug'] = body['name'].lower().replace(' ', '-').strip('*')
-        LOG.debug("FoodAPI | PATH %s | Name: %s | Location: %s", request.path, body['name'], body['location'])
+        LOG.debug("[POST] FoodAPI | PATH %s | Name: %s | Location: %s", request.path, body['name'], body['location'])
         category, response = get_category_status(body["category_id"])
         if not category:
             resp = response
@@ -114,7 +114,8 @@ class FoodAPI(Resource):
 
     @AUTH.login_required
     def get(self, name):
-        LOG.debug("FoodAPI | PATH: %s | Name: %s | ARGS: %s", request.path, name, dict(request.args))
+        args = ParamArgs(request.args)
+        LOG.debug("[GET] FoodAPI | PATH: %s | Name: %s | Args: %s", request.path, name, args)
         food_item = get_food_item_by_slug(name)
         if not food_item:
             LOG.info('FoodAPI | 404 | %s not found', name)
@@ -124,7 +125,8 @@ class FoodAPI(Resource):
 
     @AUTH.login_required
     def delete(self, name):
-        LOG.debug("FoodAPI | PATH: %s | Name: %s", request.path, name)
+        args = ParamArgs(request.args)
+        LOG.debug("[DELETE] FoodAPI | PATH: %s | Name: %s | Args: %s", request.path, name, args)
         food_item = get_food_item_by_slug(name)
         if not food_item:
             LOG.info('404 DELETE Item %s not found', name)
@@ -134,7 +136,8 @@ class FoodAPI(Resource):
 
     @AUTH.login_required
     def put(self, name):
-        LOG.debug("FoodAPI | PATH: %s | Name: %s", request.path, name)
+        args = ParamArgs(request.args)
+        LOG.debug("[PUT] FoodAPI | PATH: %s | Name: %s | Args: %s", request.path, name, args)
         body = request.json
         food_item = get_food_item_by_slug(name)
         if not food_item:
@@ -145,7 +148,7 @@ class FoodAPI(Resource):
         return Response(**resp)
 
     def create_item(self, body, category):
-        LOG.debug('FoodAPI | Adding %s to DB', body['name'])
+        LOG.debug('FoodAPI | CREATE | %s ', body)
         run_db_action(action='create', item=category, body=body, table=TABLE)
 
     def options(self, location):
@@ -156,7 +159,8 @@ class FoodAPI(Resource):
 class FoodItemsAPI(Resource):
     @AUTH.login_required
     def get(self, category):
-        LOG.debug("FoodItemsAPI | PATH: %s | Category: %s", request.path, category)
+        args = ParamArgs(request.args)
+        LOG.debug("[GET] FoodItemsAPI | PATH: %s | Category: %s | Args: %s", request.path, category, args)
         food_items = get_items_by_category(category)
         if food_items:
             food_items = json.dumps(food_items)
@@ -169,7 +173,7 @@ class FoodItemsAPI(Resource):
 class ItemsByCategoryAPI(Resource):
     @AUTH.login_required
     def get(self, category=None, status=None):
-        LOG.debug("ItemsByCategoryAPI | PATH: %s | Category: %s | Status: %s", request.path, category, status)
+        LOG.debug("[GET] ItemsByCategoryAPI | PATH: %s | Category: %s | Status: %s", request.path, category, status)
         if not category:
             category = request.args.get('category')
         if not status:
@@ -197,7 +201,7 @@ class ItemsByCategoryAPI(Resource):
 class AllItemsByCategoryAPI(Resource):
     @AUTH.login_required
     def get(self, category):
-        LOG.debug("PATH: %s | %s | %s", request.path, category)
+        LOG.debug("[GET] PATH: %s | %s | %s", request.path, category)
         if not check_category_exists(category):
             LOG.debug('FoodItemsByCategoyryAPI - GET - 404 - Category %s not found', category)
             return Response(status=404)

@@ -28,6 +28,7 @@ class Category(db.Model):
     name = db.Column(db.String(50), unique=True)
     slug = db.Column(db.String(50), unique=True)
     uuid = db.Column(db.String, unique=True)
+    order_number = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Category %r>' % self.name
@@ -36,10 +37,10 @@ class Category(db.Model):
 class Side(db.Model):
     _tablename_ = 'sides'
     id = db.Column(db.Integer, unique=True, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
+    name = db.Column(db.String(50))
     creation_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean)
     location = db.Column(db.String(25))
     price = db.Column(db.Float)
-    slug = db.Column(db.String(50), unique=True)
+    slug = db.Column(db.String(50))
     uuid = db.Column(db.String, unique=True)

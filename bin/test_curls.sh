@@ -4,46 +4,55 @@ AUTH=$(echo -e "${API_USERNAME}:${API_PASSWORD}" | base64)
 
 AUTH_HEADER="Authorization: Basic ${AUTH}"
 
-SECTION=${1}
+LOCATION=${1}
+SECTION=${2}
 
+function getActiveSection {
+    echo "getActiveSection | Location: ${1} Category: ${2}"
+    curl \
+        -s \
+        -H "${AUTH_HEADER}" \
+        -H "Content-Type: application/json" \
+        "localhost:5004/v2/menu/items?location=${1}&category=${2}&is_active=true" | jq .
+}
 
-echo "PATH: /v2/menu/items?location=beantown&is_active=false"
+function getAllCategories {
+    echo "getAllCategories | Location: ${1}"
+    curl \
+        -s \
+        -H "${AUTH_HEADER}" \
+        -H "Content-Type: application/json" \
+        "localhost:5004/v2/menu/categories?location=${1}" | jq .
+}
 
-curl \
-    -s \
-    -H "${AUTH_HEADER}" \
-    -H "Content-Type: application/json" \
-    "localhost:5004/v2/menu/items?location=beantown&is_active=false" | jq .
+function getAllActiveCategories {
+    echo "getAllActiveCategories | Location: ${1}"
+    curl \
+        -s \
+        -H "${AUTH_HEADER}" \
+        -H "Content-Type: application/json" \
+        "localhost:5004/v2/menu/categories?location=${1}&is_active=true" | jq .
+}
 
-echo "OLD PATH"
+function getAllActiveSides {
+    echo "getAllActiveCategories | Location: ${1}"
+    curl \
+        -s \
+        -v \
+        -H "${AUTH_HEADER}" \
+        -H "Content-Type: application/json" \
+        "localhost:5004/v2/menu/sides?location=${1}" | jq .
+}
 
-curl \
-    -s \
-    -H "${AUTH_HEADER}" \
-    -H "Content-Type: application/json" \
-    "localhost:5004/v1/menu/section/${SECTION}/active" | jq .
+function createSide {
+    echo "createSide | Location: ${1}"
+    curl \
+        -s \
+        -v \
+        -d @tmp.json \
+        -H "${AUTH_HEADER}" \
+        -H "Content-Type: application/json" \
+        "localhost:5004/v2/menu/sides" | jq .
+}
 
-echo "NEW PATH"
-
-curl \
-    -s \
-    -H "${AUTH_HEADER}" \
-    -H "Content-Type: application/json" \
-    "localhost:5004/v2/menu/items?location=beantown&category=${SECTION}&is_active=true" | jq .
-
-echo "GET Burgers"
-
-curl \
-    -s \
-    -H "${AUTH_HEADER}" \
-    -H "Content-Type: application/json" \
-    "localhost:5004/v2/menu/categories/burgers?location=beantown" | jq .
-
-echo "GET Fried pickles"
-
-curl \
-    -v \
-    -s \
-    -H "${AUTH_HEADER}" \
-    -H "Content-Type: application/json" \
-    "localhost:5004/v2/menu/items/fried-pickles" | jq .
+getAllActiveCategories "${LOCATION}" "${SECTION}"

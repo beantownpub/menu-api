@@ -5,7 +5,7 @@ tag ?= $(shell yq eval '.info.version' swagger.yaml)
 hash = $(shell git rev-parse --short HEAD)
 
 ifeq ($(env),dev)
-	image_tag = "$(tag)-$(hash)"
+	image_tag = $(tag)-$(hash)
 else
 	image_tag = $(tag)
 endif
