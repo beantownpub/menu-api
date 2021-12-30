@@ -35,7 +35,10 @@ for k, v in PSQL.items():
 
 database = f"postgresql://{PSQL['user']}:{PSQL['password']}@{PSQL['host']}:{PSQL['port']}/{PSQL['db']}"
 
-
+APP.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+APP.config['SQLALCHEMY_POOL_SIZE'] = 10
+APP.config['SQLALCHEMY_MAX_OVERFLOW'] = 20
+APP.config['SQLALCHEMY_POOL_RECYCLE'] = 1800
 APP.config['CORS_ALLOW_HEADERS'] = True
 APP.config['CORS_EXPOSE_HEADERS'] = True
 APP.config['SQLALCHEMY_DATABASE_URI'] = database

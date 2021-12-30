@@ -139,3 +139,4 @@ food_item_test.sh
 k8s/
 bin/beantown_menu.json
 tmp.py
+scrap/
