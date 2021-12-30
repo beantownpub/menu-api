@@ -6,7 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from flask_restful import Resource
 
 from api.database.models import Side
-from api.libs.db_utils import run_db_action, get_item_from_db
+from api.libs.db_utils import run_db_action
 from api.libs.logging import init_logger
 from api.libs.utils import get_uuid, make_slug, ParamArgs
 

@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: 0.1.6
+  version: 0.1.7
   title: Menu API
   description: An API for interacting with Beantown food menu
 
@@ -11,7 +11,7 @@ security:
   - BasicAuth: []
 
 paths:
-  /menu/sections/{category}:
+  /menu/categories:
     get:
       description: Returns a list food items from a category
       parameters:
@@ -30,7 +30,7 @@ paths:
           $ref: '#/components/responses/400Error'
 
     post:
-      description: Lets a user post a new message
+      description: Create a new category
       requestBody:
         required: true
         content:
@@ -45,17 +45,22 @@ paths:
         '400':
           $ref: '#/components/responses/400Error'
 
-  /menu/items/{item}:
+  /menu/items:
     get:
       description: Return a single food item
       parameters:
-        - name: item
+        - name: name
           in: path
           required: true
           schema:
             type: object
             items:
               $ref: '#/components/schemas/MenuItem'
+        - name: location
+          in: path
+          required: true
+          schema:
+            type: string
 
       responses:
         '200':
@@ -73,23 +78,6 @@ paths:
                     type: integer
                   details:
                     type: string
-
-        '400':
-          $ref: '#/components/responses/400Error'
-
-  /message/{location}:
-    post:
-      description: Lets a user post a new message from a certain location
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/menu/section/<category>'
-
-      responses:
-        '200':
-          description: Successfully created a new menu item
 
         '400':
           $ref: '#/components/responses/400Error'

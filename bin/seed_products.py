@@ -1,14 +1,13 @@
 import argparse
 import json
 import os
-import sys
 
 import requests
-
 from requests.auth import HTTPBasicAuth
 
 class SeedMenuException(Exception):
     """Base class for seeding menu exceptions"""
+
 
 
 USER = os.environ.get('API_USERNAME')
@@ -18,13 +17,21 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
+def get_data_path():
+    home_dir = os.environ.get('HOME')
+    data_dir = os.path.join(home_dir, 'github/beantown/data/menus')
+    if not os.path.exists(data_dir):
+        raise SeedMenuException('Data dir %s NOT FOUND', data_dir)
+    return data_dir
 
 def parse_args():
     env = {"help": "The environment to seed", "type": str, "required": True}
     location = {"help": "The location to seed", "type": str, "required": True}
+    object_type = {"help": "The type of objects to seed. Default is 'all'", "type": str, "required": False}
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--env", **env)
     parser.add_argument("-l", "--location", **location)
+    parser.add_argument("-t", "--type", **object_type)
     return parser.parse_args()
 
 class FoodMenu():
@@ -46,7 +53,8 @@ class FoodMenu():
         return url
 
     def _get_data(self):
-        menu_file = f'bin/data/{self.location}.json'
+        data_path = get_data_path()
+        menu_file = os.path.join(data_path, f'{self.location}.json')
         with open(menu_file) as f:
             menu = json.load(f)
         return menu
@@ -56,33 +64,30 @@ class FoodMenu():
         return data
 
     def get_item_by_slug(self, item_type, slug):
-        url = f"{self.url}/v2/menu/{item_type}/{slug}?location={self.location}"
+        url = f"{self.url}/v3/menu/{item_type}?location={self.location}&name={slug}"
         r = requests.get(url, auth=AUTH, headers=HEADERS)
         print(f'STATUS: {item_type} {slug} {r.status_code}')
         return r.status_code
 
     def get_category_by_slug(self, item_type, slug):
-        url = f"{self.url}/v2/menu/{item_type}/{slug}?location={self.location}"
+        url = f"{self.url}/v3/menu/{item_type}?location={self.location}&name={slug}"
         r = requests.get(url, auth=AUTH, headers=HEADERS)
-        if r.status_code != 200 or r.status_code != 404:
-            print(f'STATUS: {item_type} {slug} {r.status_code}')
+        #if r.status_code != 200 or r.status_code != 404:
+        #    print(f'STATUS: {item_type} {slug} {r.status_code}')
         return r.status_code
 
     def post_item(self, item_type, data):
-        if item_type == 'items':
-            url = f"{self.url}/v1/menu/{item_type}?location={self.location}"
-        else:
-            url = f"{self.url}/v2/menu/{item_type}?location={self.location}"
+        url = f"{self.url}/v3/menu/{item_type}?location={self.location}"
         r = requests.post(url, json=data, auth=AUTH)
-        print(f"Create {data['name']} status {r.status_code}")
-        if r.status_code != 201:
+        print(f"Create {data['name']} | Status: {r.status_code} | {r.content}")
+        if r.status_code != 201 and r.status_code != 400:
             raise SeedMenuException('Invalid Status %s | %s', r.status_code, r.content)
 
     def make_slug(self, name):
-        slug = name.lower().replace(' ', '-').strip('*')
+        slug = name.lower().replace(' ', '-').replace('.', '').replace('&', 'and').strip('*')
         return slug
 
-    def create_food_items(self):
+    def create_products(self):
         for category in self.categories:
             items = self.data['categories'][category]['items']
             for i in items:
@@ -90,8 +95,7 @@ class FoodMenu():
                     i['slug'] = self.make_slug(i['name'])
                 status = self.get_item_by_slug('items', i['slug'])
                 if status != 200:
-                    print(f"Creating item {i['name']}\n{i}")
-                    self.post_item('items', i)
+                    self.post_item('products', i)
 
     def create_categories(self):
         for category in self.categories:
@@ -105,6 +109,7 @@ class FoodMenu():
             if status == 200:
                 print(f"Category {category} already exists")
             else:
+                print(f"Item status {status} | Creating item {data['name']}")
                 self.post_item('categories', data)
 
     def create_sides(self):
@@ -117,32 +122,17 @@ class FoodMenu():
             }
             self.post_item('sides', data)
 
-
-def put_item(url, menu_item, location):
-    slug = menu_item['name'].lower().replace(' ', '-')
-    url = f"{url}/v1/menu/{slug}?location={location}"
-    r = requests.put(url, json=menu_item, auth=AUTH)
-    print(f"Update {menu_item['name']} status {r.status_code}")
-
-
-def put_category(url, menu_item, location):
-    slug = menu_item['name'].lower().replace(' ', '-')
-    url = f"{url}/v1/categories/{slug}?location={location}"
-    r = requests.put(url, json=menu_item, auth=AUTH)
-    print(f"Update {menu_item['name']} status {r.status_code}")
-
-
-def delete_item(url, menu_item, location):
-    slug = menu_item['name'].lower().replace(' ', '-')
-    url = f"{url}/v1/menu/{slug}?location={location}"
-    r = requests.delete(url, auth=AUTH)
-    print(f"Delete {menu_item['name']} status {r.status_code}")
-
-
 if __name__ == '__main__':
     print(__file__)
     args = parse_args()
     menu = FoodMenu(args.env, args.location)
-    menu.create_categories()
-    menu.create_food_items()
-    menu.create_sides()
+    if args.type == 'categories':
+        menu.create_categories()
+    elif args.type == 'products':
+        menu.create_products()
+    elif args.type == 'sides':
+        menu.create_sides()
+    else:
+        menu.create_categories()
+        menu.create_products()
+        menu.create_sides()
