@@ -64,20 +64,21 @@ class FoodMenu():
         return data
 
     def get_item_by_slug(self, item_type, slug):
-        url = f"{self.url}/v3/menu/{item_type}?location={self.location}&name={slug}"
+        url = f"{self.url}/v1/menu/{item_type}?location={self.location}&name={slug}"
         r = requests.get(url, auth=AUTH, headers=HEADERS)
-        print(f'STATUS: {item_type} {slug} {r.status_code}')
+        if r.status_code != 200 and r.status_code != 404:
+            print(f'STATUS: {item_type} {slug} {r.status_code}')
         return r.status_code
 
     def get_category_by_slug(self, item_type, slug):
-        url = f"{self.url}/v3/menu/{item_type}?location={self.location}&name={slug}"
+        url = f"{self.url}/v1/menu/{item_type}?location={self.location}&name={slug}"
         r = requests.get(url, auth=AUTH, headers=HEADERS)
         #if r.status_code != 200 or r.status_code != 404:
         #    print(f'STATUS: {item_type} {slug} {r.status_code}')
         return r.status_code
 
     def post_item(self, item_type, data):
-        url = f"{self.url}/v3/menu/{item_type}?location={self.location}"
+        url = f"{self.url}/v1/menu/{item_type}?location={self.location}"
         r = requests.post(url, json=data, auth=AUTH)
         print(f"Create {data['name']} | Status: {r.status_code} | {r.content}")
         if r.status_code != 201 and r.status_code != 400:
