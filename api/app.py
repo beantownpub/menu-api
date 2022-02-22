@@ -60,7 +60,7 @@ cors = CORS(
     supports_credentials=True
 )
 
-LOG = init_logger(os.environ.get('LOG_LEVEL'))
+LOG = init_logger(LOG_LEVEL)
 
 init_database(APP)
 LOG.info('DB initialized')

@@ -2,7 +2,7 @@ import os
 import sqlalchemy
 
 from api.database.models import Products, Category, Flavors, Sides
-from api.database.db import db
+from api.database.db import DB
 
 from .logging import init_logger
 from .utils import make_slug
@@ -74,13 +74,13 @@ def _db_update(item, table_name, body):
             item.order_number = body['order_number']
         item.description = body['description']
         item.slug = body['slug']
-        db.session.add(item)
+        DB.session.add(item)
     elif table_name == 'products':
         item.description = body['description']
         item.price = body['price']
         item.category_id = get_category_uuid(body['location'], body['category_id'])
         item.slug = body['slug']
-        db.session.add(item)
+        DB.session.add(item)
     else:
         raise MenuDBException(f"DB Table {table_name} not found")
 
@@ -95,7 +95,7 @@ def _db_write(table_name, body):
     table = TABLES.get(table_name)
     item = table(**body)
     LOG.debug('DB WRITE | ITEM %s', item)
-    db.session.add(item)
+    DB.session.add(item)
 
 
 def get_item_from_db(table_name, item_name):
@@ -114,7 +114,7 @@ def run_db_action(action, item=None, body=None, table=None, location=None):
     elif action == "update":
         _db_update(item=item, table_name=table, body=body)
     elif action == "delete":
-        db.session.delete(item)
+        DB.session.delete(item)
     else:
         raise MenuDBException(f"DB action {action} not found")
-    db.session.commit()
+    DB.session.commit()

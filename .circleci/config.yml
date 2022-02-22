@@ -1,37 +1,133 @@
 version: 2.1
+executors:
+  build_machine:
+    machine:
+      image: ubuntu-1604:202007-01
+    environment:
+      DOCKER_BUILDKIT: 1
+      BUILDX_PLATFORMS: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6
+  debian:
+    docker:
+    - image: python:3.7-slim-buster
 
-orbs:
-  # The python orb contains a set of prepackaged CircleCI configuration you can use repeatedly in your configuration files
-  # Orb commands and jobs help you with common scripting around a language/tool
-  # so you dont have to copy and paste it everywhere.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
-  python: circleci/python@1.2
-
-workflows:
-  sample:  # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run. 
-    # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows 
-    jobs:
-      - build-and-test
-
+commands:
+  install_yq:
+    description: Install yq to get API version from swagger.yaml
+    steps:
+      - run:
+          name: Install yq
+          command: |
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod a+x /usr/local/bin/yq
+  install_version_dependencies:
+    description: Install dependencies for versioning
+    steps:
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update -y && apt-get install -y wget git
+            wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            chmod a+x /usr/local/bin/yq
+  install_pytest:
+    description: Install pytest for running tests
+    steps:
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+  install_k8s_dependencies:
+    description: Install dependencies for deploying to K8s cluster
+    steps:
+      - run:
+          name: Install kubectl
+          command: |
+            apt-get update -y && apt-get install -y curl
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl config set-credentials jalbot --token=$JALBOT_TOKEN
+            kubectl config set-cluster prod --server=$K8S_SERVER --insecure-skip-tls-verify=true
+            kubectl config set-context jalbot --cluster=prod --user=jalbot
+            kubectl config use-context jalbot
+      - run:
+          name: Install helm
+          command: |
+            apt-get install apt-transport-https gnupg2 --yes
+            curl https://baltocdn.com/helm/signing.asc | apt-key add -
+            echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+            apt-get update
+            apt-get install -y helm
+  check_tags:
+    description: Check if git tag matches swagger.yaml version
+    steps:
+      - run:
+          name: Check tags
+          command: |
+            MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
+            GIT_TAG=$(git describe)
+            if [ "$MENU_API_VERSION" != "$GIT_TAG" ]; then
+                circleci-agent step halt
+            fi
 
 jobs:
-  build-and-test:  # This is the name of the job, feel free to change it to better match what you're trying to do!
-    # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
-    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
-    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
-    # The executor is the environment in which the steps below will be executed - below will use a python 3.9 container
-    # Change the version below to your required version of python
-    docker:
-      - image: cimg/python:3.8
-    # Checkout the code as the first step. This is a dedicated CircleCI step.
-    # The python orb's install-packages step will install the dependencies from a Pipfile via Pipenv by default.
-    # Here we're making sure we use just use the system-wide pip. By default it uses the project root's requirements.txt.
-    # Then run your tests!
-    # CircleCI will report the results back to your VCS provider.
+  run_tests:
+    executor: debian
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          # app-dir: ~/project/package-directory/  # If you're requirements.txt isn't in the root directory.
-          # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
+      - install_pytest
+      - run:
+          name: Run tests
+          command: python -m pytest test/
+
+  build_and_publish:
+    executor: build_machine
+    steps:
+      - checkout
+      - install_yq
+      - run:
+          name: Build Image
+          command: |
+            export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
+            docker build -t contact_api:$MENU_API_VERSION .
+      - check_tags
+      - run:
+          name: Publish Image
+          command: |
+            export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
+            echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+            docker tag contact_api:$MENU_API_VERSION $DOCKER_USERNAME/contact_api:$MENU_API_VERSION
+            docker push $DOCKER_USERNAME/contact_api:$MENU_API_VERSION
+
+  deploy:
+    circleci_ip_ranges: true
+    executor: debian
+    steps:
+      - checkout
+      - install_version_dependencies
+      - check_tags
+      - install_k8s_dependencies
+      - run:
+          name: Add Helm repo
+          command: |
+            helm repo add beantown $HELM_REPO
+            kubectl config get-contexts
+            kubectl get pods -n prod
+      - run:
+          name: Deploy contact-api
+          command: |
+            export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
+            helm repo update
+            helm upgrade --install contact-api beantown/contact-api \
+              --namespace prod \
+              --set global.env=prod \
+              --set image.tag=$MENU_API_VERSION \
+              --set logLevel=$LOG_LEVEL \
+              --debug
+
+
+workflows:
+  version: 2
+  menu_api_build_and_deploy:
+    jobs:
+      - build_and_publish
+      - deploy:
+          requires:
+            - build_and_publish

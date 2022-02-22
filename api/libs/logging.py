@@ -14,7 +14,7 @@ def get_formatter(log_level):
         formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", "%Y-%m-%d %H:%M:%S")
     return formatter
 
-def init_logger(log_level='INFO'):
+def init_logger(log_level):
     if __name__ != '__main__':
         #app_log = json_logging.init_flask(enable_json=True)
         # json_logging.init_request_instrument(app)
