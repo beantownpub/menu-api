@@ -86,15 +86,15 @@ jobs:
           name: Build Image
           command: |
             export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
-            docker build -t contact_api:$MENU_API_VERSION .
+            docker build -t menu_api:$MENU_API_VERSION .
       - check_tags
       - run:
           name: Publish Image
           command: |
             export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
             echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
-            docker tag contact_api:$MENU_API_VERSION $DOCKER_USERNAME/contact_api:$MENU_API_VERSION
-            docker push $DOCKER_USERNAME/contact_api:$MENU_API_VERSION
+            docker tag menu_api:$MENU_API_VERSION $DOCKER_USERNAME/menu_api:$MENU_API_VERSION
+            docker push $DOCKER_USERNAME/menu_api:$MENU_API_VERSION
 
   deploy:
     circleci_ip_ranges: true
@@ -111,17 +111,16 @@ jobs:
             kubectl config get-contexts
             kubectl get pods -n prod
       - run:
-          name: Deploy contact-api
+          name: Deploy menu-api
           command: |
             export MENU_API_VERSION=$(yq eval '.info.version' swagger.yaml)
             helm repo update
-            helm upgrade --install contact-api beantown/contact-api \
+            helm upgrade --install menu-api beantown/menu-api \
               --namespace prod \
               --set global.env=prod \
               --set image.tag=$MENU_API_VERSION \
               --set logLevel=$LOG_LEVEL \
               --debug
-
 
 workflows:
   version: 2
