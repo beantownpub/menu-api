@@ -8,7 +8,7 @@ alembic==1.7.5
     # via flask-migrate
 aniso8601==8.1.1
     # via flask-restful
-certifi==2020.12.5
+certifi==2022.12.7
     # via requests
 chardet==4.0.0
     # via requests
