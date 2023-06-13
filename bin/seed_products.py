@@ -83,6 +83,15 @@ class FoodMenu():
         print(f"Create {data['name']} | Status: {r.status_code} | {r.content}")
         if r.status_code != 201 and r.status_code != 400:
             raise SeedMenuException('Invalid Status %s | %s', r.status_code, r.content)
+        return r.status_code
+
+    def put_item(self, item_type, data):
+        url = f"{self.url}/v1/menu/{item_type}?location={self.location}"
+        r = requests.put(url, json=data, auth=AUTH)
+        print(f"Put {data['name']} | Status: {r.status_code} | {r.content}")
+        if r.status_code != 201 and r.status_code != 400:
+            raise SeedMenuException('Invalid Status %s | %s', r.status_code, r.content)
+        return r.status_code
 
     def make_slug(self, name):
         slug = name.lower().replace(' ', '-').replace('.', '').replace('&', 'and').strip('*')
@@ -97,6 +106,8 @@ class FoodMenu():
                 status = self.get_item_by_slug('items', i['slug'])
                 if status != 200:
                     self.post_item('products', i)
+                else:
+                    self.put_item('products', i)
 
     def create_categories(self):
         for category in self.categories:
@@ -109,6 +120,7 @@ class FoodMenu():
             status = self.get_item_by_slug('categories', data['slug'])
             if status == 200:
                 print(f"Category {category} already exists")
+                self.put_item('categories', data)
             else:
                 print(f"Item status {status} | Creating item {data['name']}")
                 self.post_item('categories', data)
