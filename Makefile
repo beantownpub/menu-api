@@ -32,18 +32,18 @@ compile:
 
 build:
 	@echo "\033[1;32m. . . Building Menu API image . . .\033[1;37m\n"
-	docker build --platform linux/x86_64 -t menu_api:$(image_tag) .
+	docker build --platform linux/x86_64 -t menu-api:$(image_tag) .
 
 build_no_cache:
-	docker build -t menu_api . --no-cache=true
+	docker build -t menu-api . --no-cache=true
 
 publish: build
-	docker tag menu_api:$(image_tag) jalgraves/menu_api:$(image_tag)
-	docker push jalgraves/menu_api:$(image_tag)
+	docker tag menu-api:$(image_tag) jalgraves/menu-api:$(image_tag)
+	docker push jalgraves/menu-api:$(image_tag)
 
 latest: build
-	docker tag menu_api:$(image_tag) jalgraves/menu_api:latest
-	docker push jalgraves/menu_api:latest
+	docker tag menu-api:$(image_tag) jalgraves/menu-api:latest
+	docker push jalgraves/menu-api:latest
 
 redis:
 	docker run -d --name red -p "6379:6379" --restart always redis
