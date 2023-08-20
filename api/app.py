@@ -20,11 +20,11 @@ APP = Flask(__name__.split('.')[0], instance_path='/opt/app/api')
 API = Api(APP)
 
 PSQL = {
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PASSWORD'),
-    'host': os.environ.get('DB_HOST'),
-    'db': os.environ.get('DB_NAME'),
-    'port': os.environ.get('DB_PORT')
+    'user': os.environ.get('DB_USER').rstrip("\n"),
+    'password': os.environ.get('DB_PASSWORD').rstrip("\n"),
+    'host': os.environ.get('DB_HOST').rstrip("\n"),
+    'db': os.environ.get('DB_NAME').rstrip("\n"),
+    'port': os.environ.get('DB_PORT').rstrip("\n")
 }
 
 for k, v in PSQL.items():

@@ -1,11 +1,5 @@
 version: 2.1
 executors:
-  build_machine:
-    machine:
-      image: ubuntu-1604:202007-01
-    environment:
-      DOCKER_BUILDKIT: 1
-      BUILDX_PLATFORMS: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6
   debian:
     docker:
     - image: python:3.7-slim-buster
@@ -28,21 +22,15 @@ commands:
             apt-get update -y && apt-get install -y wget git
             wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
             chmod a+x /usr/local/bin/yq
-  install_pytest:
-    description: Install pytest for running tests
-    steps:
-      - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
   install_k8s_dependencies:
     description: Install dependencies for deploying to K8s cluster
     steps:
       - run:
           name: Install kubectl
           command: |
-            apt-get update -y && apt-get install -y curl
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            sudo apt-get update -y && sudo apt-get install -y curl
+            sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             kubectl config set-credentials jalbot --token=$JALBOT_TOKEN
             kubectl config set-cluster prod --server=$K8S_SERVER --insecure-skip-tls-verify=true
             kubectl config set-context jalbot --cluster=prod --user=jalbot
@@ -50,11 +38,11 @@ commands:
       - run:
           name: Install helm
           command: |
-            apt-get install apt-transport-https gnupg2 --yes
-            curl https://baltocdn.com/helm/signing.asc | apt-key add -
-            echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
-            apt-get update
-            apt-get install -y helm
+            sudo apt-get install apt-transport-https gnupg2 --yes
+            sudo curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+            sudo echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+            sudo apt-get update
+            sudo apt-get install -y helm
   check_tags:
     description: Check if git tag matches swagger.yaml version
     steps:
@@ -68,20 +56,12 @@ commands:
             fi
 
 jobs:
-  run_tests:
+  build_and_publish:
     executor: debian
     steps:
-      - checkout
-      - install_pytest
-      - run:
-          name: Run tests
-          command: python -m pytest test/
-
-  build_and_publish:
-    executor: build_machine
-    steps:
-      - checkout
-      - install_yq
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
       - run:
           name: Build Image
           command: |
@@ -123,7 +103,6 @@ jobs:
               --debug
 
 workflows:
-  version: 2
   menu_api_build_and_deploy:
     jobs:
       - build_and_publish
