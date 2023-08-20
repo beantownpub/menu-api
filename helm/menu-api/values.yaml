@@ -1,7 +1,7 @@
 appName: menu-api
 
 image:
-  repository: jalgraves/menu_api
+  repository: jalgraves/menu-api
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
