@@ -3,6 +3,6 @@ name: menu-api
 description: Beantown Pub food menu API deployment
 type: application
 version: 0.1.1
-appVersion: 0.1.11
+appVersion: 0.1.12
 sources:
 - https://github.com/beantownpub/menu-api

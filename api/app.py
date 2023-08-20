@@ -61,7 +61,6 @@ cors = CORS(
 )
 
 LOG = init_logger(LOG_LEVEL)
-LOG.info('WTF: %s', database)
 init_database(APP)
 LOG.info('DB initialized')
 init_routes(API)
