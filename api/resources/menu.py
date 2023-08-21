@@ -22,7 +22,7 @@ LOG.info('menu.py logging level %s', LOG_LEVEL)
 @AUTH.verify_password
 def verify_password(username, password):
     LOG.info('Verifying password for %s %s', username, password)
-    api_pwd = os.environ.get("API_PASSWORD").stripr("\n")
+    api_pwd = os.environ.get("API_PASSWORD").rstrip("\n")
     LOG.info('API Password %s', api_pwd)
     if password.strip() == api_pwd:
         verified = True
