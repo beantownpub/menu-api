@@ -23,7 +23,7 @@ LOG.info('products.py logging level %s', LOG_LEVEL)
 @AUTH.verify_password
 def verify_password(username, password):
     api_pwd = os.environ.get("API_PASSWORD")
-    if password.strip() == api_pwd:
+    if password.strip() == api_pwd.strip():
         verified = True
     else:
         LOG.info('Access Denied - %s', username)

@@ -21,10 +21,10 @@ LOG.info('menu.py logging level %s', LOG_LEVEL)
 
 @AUTH.verify_password
 def verify_password(username, password):
-    LOG.info('Verifying password for %s %s', username, password)
-    api_pwd = os.environ.get("API_PASSWORD").rstrip("\n")
-    LOG.info('API Password %s', api_pwd)
-    if password.strip() == api_pwd:
+    LOG.info('Verifying password for %s length %s', username, len(password))
+    api_pwd = os.environ.get("API_PASSWORD")
+    LOG.info('API Password length %s', len(api_pwd))
+    if password.strip() == api_pwd.strip():
         verified = True
     else:
         LOG.info('Access Denied - %s', username)
