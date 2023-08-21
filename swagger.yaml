@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  version: 0.1.12
+  version: 0.1.13
   title: Menu API
   description: An API for interacting with database restaurant menus
 
