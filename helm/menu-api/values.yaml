@@ -15,6 +15,12 @@ ingressHost: ""
 logLevel: INFO
 regionCode: use2
 replicaCount: 1
+resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+  limits:
+    memory: 350Mi
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

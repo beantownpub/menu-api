@@ -51,7 +51,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: false
           runAsNonRoot: false
-        resources: {}
+        resources: {{- toYaml .Values.resources | nindent 10 }}
       {{- if .Values.serviceAccount.create }}
       serviceAccountName: {{ include "menu-api.serviceAccountName" . }}
       {{- end }}
