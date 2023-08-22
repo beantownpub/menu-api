@@ -28,6 +28,7 @@ context:
 	kubectl config use-context $(context)
 
 compile:
+	cp requirements.txt prev-requirements.txt
 	pip-compile requirements.in
 
 build:

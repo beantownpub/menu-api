@@ -8,23 +8,24 @@ from flask_cors import CORS
 from api.database.db import init_database
 from api.libs.logging import init_logger
 from api.resources.routes import init_routes
-
+from api.libs.aws import get_secret
 
 class MenuAppException(Exception):
     """base class for menu exceptions """
 
 
+SECRET = get_secret()
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 ORIGIN_URL = os.environ.get('ORIGIN_URL')
 APP = Flask(__name__.split('.')[0], instance_path='/opt/app/api')
 API = Api(APP)
 
 PSQL = {
-    'user': os.environ.get('DB_USER').rstrip("\n"),
-    'password': os.environ.get('DB_PASSWORD').rstrip("\n"),
-    'host': os.environ.get('DB_HOST').rstrip("\n"),
-    'db': os.environ.get('DB_NAME').rstrip("\n"),
-    'port': os.environ.get('DB_PORT').rstrip("\n")
+    'user': SECRET["db_user"],
+    'password': SECRET["db_pass"],
+    'host': SECRET["db_host"],
+    'db': SECRET["db_name"],
+    'port': SECRET["db_port"]
 }
 
 for k, v in PSQL.items():

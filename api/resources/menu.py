@@ -8,7 +8,9 @@ from flask_restful import Resource
 from api.libs.db_utils import run_db_action, get_all_items, get_category_uuid
 from api.libs.logging import init_logger
 from api.libs.utils import ParamArgs
+from api.libs.aws import get_secret
 
+SECRET = get_secret()
 AUTH = HTTPBasicAuth()
 
 class MenuDBException(Exception):
@@ -21,15 +23,24 @@ LOG.info('menu.py logging level %s', LOG_LEVEL)
 
 @AUTH.verify_password
 def verify_password(username, password):
-    LOG.info('Verifying password for %s length %s', username, len(password))
-    api_pwd = os.environ.get("API_PASSWORD")
-    LOG.info('API Password length %s', len(api_pwd))
-    if password.strip() == api_pwd.strip():
+    api_username = SECRET["api_username"].strip()
+    api_password = SECRET["api_password"].strip()
+    if username.strip() == api_username and password.strip() == api_password:
         verified = True
     else:
-        LOG.info('Access Denied - %s', username)
         verified = False
     return verified
+
+
+@AUTH.error_handler
+def unauthorized():
+    LOG.info("Unauthorized request")
+    resp = {
+        "status": 401,
+        "response": "Unauthorized",
+        "mimetype": "application/json",
+    }
+    return Response(**resp)
 
 
 def convert_to_dict(item):

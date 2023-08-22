@@ -8,8 +8,10 @@ from flask_restful import Resource
 from api.libs.db_utils import run_db_action, get_item_by_slug, get_all_items, get_item_by_sku
 from api.libs.logging import init_logger
 from api.libs.utils import convert_to_dict, make_slug, make_uuid, ParamArgs
+from api.libs.aws import get_secret
 from .menu import delete_all_items_in_category, get_items_by_category
 
+SECRET = get_secret()
 AUTH = HTTPBasicAuth()
 
 class MenuDBException(Exception):
@@ -22,13 +24,24 @@ LOG.info('products.py logging level %s', LOG_LEVEL)
 
 @AUTH.verify_password
 def verify_password(username, password):
-    api_pwd = os.environ.get("API_PASSWORD")
-    if password.strip() == api_pwd.strip():
+    api_username = SECRET["api_username"].strip()
+    api_password = SECRET["api_password"].strip()
+    if username.strip() == api_username and password.strip() == api_password:
         verified = True
     else:
-        LOG.info('Access Denied - %s', username)
         verified = False
     return verified
+
+
+@AUTH.error_handler
+def unauthorized():
+    LOG.info("Unauthorized request")
+    resp = {
+        "status": 401,
+        "response": "Unauthorized",
+        "mimetype": "application/json",
+    }
+    return Response(**resp)
 
 
 def get_items(location, status, table, all=False):

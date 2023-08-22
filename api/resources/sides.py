@@ -9,7 +9,9 @@ from api.database.models import Side
 from api.libs.db_utils import run_db_action
 from api.libs.logging import init_logger
 from api.libs.utils import get_uuid, make_slug, ParamArgs
+from api.libs.aws import get_secret
 
+SECRET = get_secret()
 AUTH = HTTPBasicAuth()
 TABLE = 'sides'
 
@@ -20,15 +22,27 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL')
 LOG = init_logger(LOG_LEVEL)
 LOG.info('sides.py logging level %s', LOG_LEVEL)
 
+
 @AUTH.verify_password
 def verify_password(username, password):
-    api_pwd = os.environ.get("API_PASSWORD")
-    if password.strip() == api_pwd:
+    api_username = SECRET["api_username"].strip()
+    api_password = SECRET["api_password"].strip()
+    if username.strip() == api_username and password.strip() == api_password:
         verified = True
     else:
-        LOG.info('Access Denied - %s', username)
         verified = False
     return verified
+
+
+@AUTH.error_handler
+def unauthorized():
+    LOG.info("Unauthorized request")
+    resp = {
+        "status": 401,
+        "response": "Unauthorized",
+        "mimetype": "application/json",
+    }
+    return Response(**resp)
 
 
 def side_to_dict(side):
