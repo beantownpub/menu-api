@@ -10,9 +10,9 @@ aniso8601==9.0.1
     # via flask-restful
 blinker==1.6.2
     # via flask
-boto3==1.28.30
+boto3==1.28.56
     # via -r requirements.in
-botocore==1.31.30
+botocore==1.31.56
     # via
     #   boto3
     #   s3transfer
@@ -45,6 +45,8 @@ flask-sqlalchemy==3.0.5
     # via
     #   -r requirements.in
     #   flask-migrate
+greenlet==2.0.2
+    # via sqlalchemy
 gunicorn==21.2.0
     # via -r requirements.in
 idna==3.4
@@ -78,7 +80,7 @@ pytz==2023.3
     #   flask-restful
 requests==2.31.0
     # via -r requirements.in
-s3transfer==0.6.2
+s3transfer==0.7.0
     # via boto3
 six==1.16.0
     # via
