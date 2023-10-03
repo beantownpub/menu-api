@@ -45,6 +45,8 @@ flask-sqlalchemy==3.0.5
     # via
     #   -r requirements.in
     #   flask-migrate
+greenlet==3.0.0
+    # via sqlalchemy
 gunicorn==21.2.0
     # via -r requirements.in
 idna==3.4
@@ -92,7 +94,7 @@ typing-extensions==4.7.1
     # via
     #   alembic
     #   sqlalchemy
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   botocore
     #   requests
