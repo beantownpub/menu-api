@@ -19,7 +19,7 @@ HEADERS = {
 
 def get_data_path():
     home_dir = os.environ.get('HOME')
-    data_dir = os.path.join(home_dir, 'github/beantown/data/menus')
+    data_dir = os.path.join(home_dir, 'github/beantownpub/data/menus')
     if not os.path.exists(data_dir):
         raise SeedMenuException('Data dir %s NOT FOUND', data_dir)
     return data_dir
