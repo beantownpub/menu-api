@@ -6,11 +6,11 @@ from database.db import db
 
 
 PSQL = {
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PASSWORD'),
-    'host': os.environ.get('DB_HOST'),
-    'db': os.environ.get('DB_NAME'),
-    'port': os.environ.get('DB_PORT')
+    'user': os.environ.get('DATABASE_USERNAME'),
+    'password': os.environ.get('DATABASE_PASSWORD'),
+    'host': os.environ.get('DATABASE_HOST'),
+    'db': os.environ.get('DATABASE_NAME'),
+    'port': os.environ.get('DATABASE_PORT')
 }
 
 database = f"postgresql://{PSQL['user']}:{PSQL['password']}@{PSQL['host']}:{PSQL['port']}/{PSQL['db']}"

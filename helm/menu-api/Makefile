@@ -2,17 +2,15 @@
 SHELL := /bin/bash
 
 name ?= $(subst _,-,$(@D))
-image := menu_api
-#tag := $(shell grep 'appVersion:' $(@D)/Chart.yaml | cut -f 2 -d' ')
+image := menu-api
+tag := $(shell grep 'appVersion:' Chart.yaml | cut -f 2 -d' ')
 port := ${MENU_API_PORT}
 log_level ?= ${MENU_API_LOG_LEVEL}
 
 ifeq ($(env),dev)
-	context = ${DEV_CONTEXT}
-	namespace = ${DEV_NAMESPACE}
+	kubeconfig = ${DEV_KUBECONFIG}
 else ifeq ($(env),prod)
-	context = ${PROD_CONTEXT}
-	namespace = ${PROD_NAMESPACE}
+	kubeconfig = ${PROD_KUBECONFIG}
 endif
 
 menu/clean:
@@ -23,23 +21,23 @@ menu/context:
 
 ## Publish menu-api Helm chart
 menu_api/publish:
-	cd menu_api && \
+	cd helm/menu-api && \
 		helm package . && \
 		cd - && \
 		helm repo index . --url https://beantownpub.github.io/helm/ && \
-		git add menu_api/
+		git add helm/menu-api/
 
 ## Deploy menu-api to a cluster
-menu/install: menu/context
+helm/install:
 	@echo "\033[1;32m. . . Installing menu-api in $(env) . . .\033[1;37m\n"
-	cd menu_api && \
-	helm upgrade --install menu-api . \
+	helm upgrade --install menu-api helm/menu-api/ \
+		--kubeconfig="${HOME}"/.kube/$(kubeconfig) \
 		--namespace $(namespace) \
+		--set aws.regionCode=use1 \
 		--set global.env=$(env) \
-		--set image.name=$(image) \
-		--set db_name=${MENU_DB_NAME} \
 		--set image.tag=$(tag) \
 		--set logLevel=$(log_level) \
+		--set externalSecrets.enabled=true \
 		--debug
 
 menu/template:

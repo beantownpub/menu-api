@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 
-ENV TINI_VERSION v0.18.0
+ENV TINI_VERSION=v0.18.0
 
 RUN apt-get update -y && \
     apt-get install -y postgresql libpq-dev gcc && \

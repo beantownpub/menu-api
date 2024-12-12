@@ -21,12 +21,43 @@ spec:
     spec:
       containers:
       - env:
-        - name: AWS_DEFAULT_REGION
-          value: {{ .Values.aws.region }}
-        - name: AWS_SECRET_NAME
-          value: {{ .Values.aws.secretName }}
         - name: LOG_LEVEL
           value: {{ .Values.logLevel }}
+        - name: DATABASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: DATABASE_USERNAME
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: DATABASE_PASSWORD
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: DATABASE_HOST
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: DATABASE_NAME
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: DATABASE_PORT
+        - name: API_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: API_USERNAME
+        - name: API_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "menu-api.fullname" . }}
+              key: API_PASSWORD
       {{- if eq .Values.global.env "dev" }}
         image: "menu-api:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: Never

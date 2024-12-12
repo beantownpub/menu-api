@@ -1,10 +1,12 @@
+-include \
+	helm/contact-api/Makefile
 .PHONY: all test clean
 
 export MAKE_PATH ?= $(shell pwd)
 export SELF ?= $(MAKE)
 SHELL := /bin/bash
 
-MAKE_FILES = ${MAKE_PATH}/Makefile
+MAKE_FILES = ${MAKE_PATH}/Makefile ${MAKE_PATH}/helm/menu-api/Makefile
 
 name ?= menu-api
 env ?= dev
@@ -17,7 +19,7 @@ ifeq ($(env),dev)
 	context = ${DEV_CONTEXT}
 	namespace = ${DEV_NAMESPACE}
 else ifeq ($(env),prod)
-    image_tag = $(tag)
+  image_tag = $(tag)
 	context = ${PROD_CONTEXT}
 	namespace = ${PROD_NAMESPACE}
 else

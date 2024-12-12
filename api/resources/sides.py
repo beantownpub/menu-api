@@ -9,9 +9,9 @@ from api.database.models import Side
 from api.libs.db_utils import run_db_action
 from api.libs.logging import init_logger
 from api.libs.utils import get_uuid, make_slug, ParamArgs
-from api.libs.aws import get_secret
+#from api.libs.aws import get_secret
 
-SECRET = get_secret()
+S#ECRET = get_secret()
 AUTH = HTTPBasicAuth()
 TABLE = 'sides'
 
@@ -25,11 +25,12 @@ LOG.info('sides.py logging level %s', LOG_LEVEL)
 
 @AUTH.verify_password
 def verify_password(username, password):
-    api_username = SECRET["api_username"].strip()
-    api_password = SECRET["api_password"].strip()
+    api_username = os.environ.get("API_USERNAME").strip()
+    api_password = os.environ.get("API_PASSWORD").strip()
     if username.strip() == api_username and password.strip() == api_password:
         verified = True
     else:
+        LOG.info("Unable to verify username %s", username)
         verified = False
     return verified
 
