@@ -1,5 +1,5 @@
 -include \
-	helm/contact-api/Makefile
+	helm/menu-api/Makefile
 .PHONY: all test clean
 
 export MAKE_PATH ?= $(shell pwd)
@@ -9,8 +9,9 @@ SHELL := /bin/bash
 MAKE_FILES = ${MAKE_PATH}/Makefile ${MAKE_PATH}/helm/menu-api/Makefile
 
 name ?= menu-api
+image ?= $(name)
 env ?= dev
-port ?= 5004
+port ?= ${MENU_API_PORT}
 tag ?= $(shell yq eval '.info.version' swagger.yaml)
 hash = $(shell git rev-parse --short HEAD)
 
@@ -41,12 +42,12 @@ build_no_cache:
 	docker build -t menu-api . --no-cache=true
 
 publish: build
-	docker tag menu-api:$(image_tag) jalgraves/menu-api:$(image_tag)
-	docker push jalgraves/menu-api:$(image_tag)
+	docker tag menu-api:$(image_tag) ${DOCKERHUB}/$(image):$(image_tag)
+	docker push ${DOCKERHUB}/$(image):$(image_tag)
 
 latest: build
-	docker tag menu-api:$(image_tag) jalgraves/menu-api:latest
-	docker push jalgraves/menu-api:latest
+	docker tag menu-api:$(image_tag) ${DOCKERHUB}/$(image):latest
+	docker push ${DOCKERHUB}/$(image):latest
 
 redis:
 	docker run -d --name red -p "6379:6379" --restart always redis

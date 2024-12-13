@@ -1,9 +1,6 @@
 .PHONY: all test clean
 SHELL := /bin/bash
 
-name ?= $(subst _,-,$(@D))
-image := menu-api
-tag := $(shell grep 'appVersion:' Chart.yaml | cut -f 2 -d' ')
 port := ${MENU_API_PORT}
 log_level ?= ${MENU_API_LOG_LEVEL}
 
