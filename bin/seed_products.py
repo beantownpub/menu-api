@@ -50,6 +50,7 @@ class FoodMenu():
             url = os.environ.get('PROD_MENU_API_URL')
         else:
             raise SeedMenuException("Invalid env")
+        print(f"URL: {url}")
         return url
 
     def _get_data(self):
@@ -75,21 +76,24 @@ class FoodMenu():
         r = requests.get(url, auth=AUTH, headers=HEADERS)
         #if r.status_code != 200 or r.status_code != 404:
         #    print(f'STATUS: {item_type} {slug} {r.status_code}')
+        print(f"STATUS: {item_type} {slug} {r.status_code}")
         return r.status_code
 
     def post_item(self, item_type, data):
         url = f"{self.url}/v1/menu/{item_type}?location={self.location}"
         r = requests.post(url, json=data, auth=AUTH)
-        print(f"Create {data['name']} | Status: {r.status_code} | {r.content}")
-        if r.status_code != 201 and r.status_code != 400:
+        print(f"WTF Data: {data}")
+        print(f"WTF Create {data['name']} | Status: {r.status_code} | {r.content}")
+        if r.status_code != 201 and r.status_code != 400 and r.status_code != 404 :
             raise SeedMenuException('Invalid Status %s | %s', r.status_code, r.content)
         return r.status_code
 
     def put_item(self, item_type, data):
         url = f"{self.url}/v1/menu/{item_type}?location={self.location}"
+        print(f"PUT Type: {item_type} Data: {data}")
         r = requests.put(url, json=data, auth=AUTH)
         print(f"Put {data['name']} | Status: {r.status_code} | {r.content}")
-        if r.status_code != 201 and r.status_code != 400:
+        if r.status_code != 201 and r.status_code != 400 and r.status_code != 404:
             raise SeedMenuException('Invalid Status %s | %s', r.status_code, r.content)
         return r.status_code
 
@@ -111,6 +115,7 @@ class FoodMenu():
 
     def create_categories(self):
         for category in self.categories:
+            print(f"WTF Category: {category}")
             data = self._get_category_data(category)
             data['name'] = category
             if data.get('items'):

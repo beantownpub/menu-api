@@ -8,6 +8,8 @@ flask-sqlalchemy
 flask-restful
 gunicorn
 json-logging
-psycopg2
+psycopg2-binary
 pytz
 requests
+sqlalchemy>=2.0.23
+typing-extensions>=4.8.0

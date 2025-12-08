@@ -14,6 +14,8 @@ env ?= dev
 port ?= ${MENU_API_PORT}
 tag ?= $(shell yq eval '.info.version' swagger.yaml)
 hash = $(shell git rev-parse --short HEAD)
+aws_profile ?= jalgraves
+aws_region ?= us-east-1
 
 ifeq ($(env),dev)
 	image_tag = $(tag)-$(hash)
@@ -27,6 +29,11 @@ else
 	env := dev
 endif
 
+## Login to AWS ECR
+ecr/login:
+	export AWS_DEFAULT_PROFILE=$(aws_profile) && \
+	aws ecr get-login-password --region $(aws_region) | docker login --username AWS --password-stdin $(ECR_REGISTRY)
+
 context:
 	kubectl config use-context $(context)
 
@@ -34,6 +41,27 @@ compile:
 	cp requirements.txt prev-requirements.txt
 	pip-compile requirements.in
 
+build/ecr:
+	docker build --platform linux/x86_64 -t $(ECR_REGISTRY)/menu-api:$(image_tag) .
+
+push/ecr:
+	docker push $(ECR_REGISTRY)/menu-api:$(image_tag)
+
+run:
+	docker run -d \
+		--platform linux/x86_64 \
+		--name menu-api \
+		--network wtf \
+		-p 5004:5004 \
+		-e LOG_LEVEL=DEBUG \
+		-e DATABASE_USERNAME=$(DATABASE_USERNAME) \
+		-e DATABASE_PASSWORD=$(DATABASE_PASSWORD) \
+		-e DATABASE_HOST=$(DATABASE_HOST) \
+		-e DATABASE_NAME=$(DATABASE_NAME) \
+		-e DATABASE_PORT=$(DATABASE_PORT) \
+		-e API_USERNAME=$(API_USERNAME) \
+		-e API_PASSWORD=$(API_PASSWORD) \
+		$(ECR_REGISTRY)/menu-api:$(image_tag)
 build:
 	@echo "\033[1;32m. . . Building Menu API image . . .\033[1;37m\n"
 	docker build --platform linux/x86_64 -t menu-api:$(image_tag) .
